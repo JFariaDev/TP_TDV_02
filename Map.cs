@@ -5,21 +5,22 @@ namespace Bratalian
 {
     public class Map
     {
-        private Texture2D _tileset;
-        private int[,] _data;
-        private int _tileSize;
-        private int _tilesPerRow;
+        private readonly Texture2D _tileset;
+        private readonly int[,] _data;
+        private readonly int _tileSize;
+        private readonly int _tilesPerRow;
 
-        public int Width => _data.GetLength(1) * _tileSize;
-        public int Height => _data.GetLength(0) * _tileSize;
-
-        public Map(Texture2D tileset, int[,] mapData, int tileSize)
+        public Map(Texture2D tileset, int[,] data, int tileSize)
         {
             _tileset = tileset;
-            _data = mapData;
+            _data = data;
             _tileSize = tileSize;
-            _tilesPerRow = tileset.Width / tileSize;  // no teu caso = 10
+            _tilesPerRow = tileset.Width / tileSize;
         }
+
+        // Para que Game1.cs possa fazer map.Width / map.Height
+        public int Width => _data.GetLength(1) * _tileSize;
+        public int Height => _data.GetLength(0) * _tileSize;
 
         public void Draw(SpriteBatch sb)
         {
@@ -29,62 +30,67 @@ namespace Bratalian
             for (int y = 0; y < rows; y++)
                 for (int x = 0; x < cols; x++)
                 {
-                    int type = _data[y, x];            // 1..10
-                    int idx = type - 1;               // 0..9
-                    float rotation = 0f;               // em radianos
-                    Vector2 origin = new Vector2(_tileSize / 2f, _tileSize / 2f);
+                    int type = _data[y, x];
+                    int idx;
+                    float rot = 0f;
 
-                    // para os tipos “rotacionáveis”, 
-                    // mapeamos sempre o mesmo idx e ajustamos o ângulo:
                     switch (type)
                     {
-                        // --- Relva ---
-                        case 4: // canto superior direito (use idx=3 sem rotação)
-                            idx = 3; rotation = 0f; break;
-                        case 5: // canto superior esquerdo -> gira 90° CCW o tile 4
-                            idx = 3; rotation = -MathHelper.PiOver2; break;
-                        case 6: // aresta entre cantos (tile 6 no sheet)
-                            idx = 5; // atenção: idx=5 corresponde ao tile6 no spritesheet
-                                     // decide rotação pelo vizinho (exemplo simplificado):
-                                     // se tiver relva à esquerda ou direita, gira 90°:
-                                     // se não, mantém vertical.
-                                     // (aqui sempre vertical; ajuste conforme seu mapData)
-                            rotation = 0f;
+                        case 1: // TILE 1: chão
+                            idx = 0; rot = 0f;
+                            break;
+                        case 2: // TILE 2: relva interior
+                            idx = 1; rot = 0f;
+                            break;
+                        case 3: // TILE 3: obstáculo no chão (topo/baixo)
+                            idx = 2; rot = 0f;
                             break;
 
-                        // --- Obstáculo grande ---
-                        case 7: // lateral entre cantos
-                            idx = 6; rotation = 0f; break;
-                        case 8: // interior do obstáculo
-                            idx = 7; rotation = 0f; break;
-                        case 9: // canto inferior esquerdo -> usa tile9 como está
-                            idx = 8; rotation = 0f; break;
-                        case 10:// canto superior esquerdo -> gira tile9 180°
-                            idx = 8; rotation = MathHelper.Pi; break;
+                        // ---- Bordas entre cantos (TILE 6) ----
+                        case 6:
+                            idx = 5; // TILE 6 é o 5º índice (0-based)
+                            if (y == 0)
+                                rot = 0f;                  // topo
+                            else if (x == 0)
+                                rot = MathHelper.Pi;       // lateral esquerda (180°)
+                            else if (y == rows - 1)
+                                rot = MathHelper.PiOver2;  // fundo (90°)
+                            else if (x == cols - 1)
+                                rot = -MathHelper.PiOver2; // lateral direita (-90°)
+                            break;
+
+                        // ---- Cantos de relva (TILE 4 e 5) ----
+                        case 4: // canto superior direito / inferior direito
+                            idx = 3; // TILE 4 → índice 3
+                            rot = (y == rows - 1)
+                                  ? -MathHelper.PiOver2  // BR
+                                  : 0f;                  // TR
+                            break;
+                        case 5: // canto superior esquerdo / inferior esquerdo
+                            idx = 4; // TILE 5 → índice 4
+                            rot = (y == rows - 1)
+                                  ? MathHelper.PiOver2   // BL
+                                  : 0f;                  // TL
+                            break;
 
                         default:
-                            idx = type - 1; rotation = 0f; break;
+                            idx = 0; rot = 0f;
+                            break;
                     }
 
-                    // calcula onde “fatia” no spritesheet:
-                    int srcX = (idx % _tilesPerRow) * _tileSize;
-                    int srcY = (idx / _tilesPerRow) * _tileSize;
-                    var srcRect = new Rectangle(srcX, srcY, _tileSize, _tileSize);
-
-                    // onde desenhar na tela:
-                    var dstRect = new Rectangle(
-                        x * _tileSize + _tileSize / 2,
-                        y * _tileSize + _tileSize / 2,
-                        _tileSize,
-                        _tileSize
-                    );
+                    var srcRect = new Rectangle(
+                        (idx % _tilesPerRow) * _tileSize,
+                        (idx / _tilesPerRow) * _tileSize,
+                        _tileSize, _tileSize);
+                    var pos = new Vector2(x * _tileSize, y * _tileSize);
+                    var origin = new Vector2(_tileSize / 2f, _tileSize / 2f);
 
                     sb.Draw(
                         _tileset,
-                        new Vector2(dstRect.X, dstRect.Y),
+                        pos + origin,
                         srcRect,
                         Color.White,
-                        rotation,
+                        rot,
                         origin,
                         1f,
                         SpriteEffects.None,

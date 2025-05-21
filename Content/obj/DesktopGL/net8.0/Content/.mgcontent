@@ -4,9 +4,9 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
-    <File>C:/Users/marci/source/repos/Bratalian/Content/File.spritefont</File>
-    <File>C:/Users/marci/source/repos/Bratalian/Content/player.png</File>
-    <File>C:/Users/marci/source/repos/Bratalian/Content/tileset.png</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Bratalian/Content/File.spritefont</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Bratalian/Content/player.png</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Bratalian/Content/tileset.png</File>
   </SourceFiles>
   <DestFiles>
     <File xsi:nil="true" />
