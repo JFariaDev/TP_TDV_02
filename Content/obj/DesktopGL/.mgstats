@@ -1,0 +1,4 @@
+Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
+"C:/Users/marci/source/repos/Bratalian/Content/File.spritefont","C:/Users/marci/source/repos/Bratalian/Content/bin/DesktopGL/File.xnb","FontDescriptionProcessor","SpriteFontContent",2068,21529,0,1458775
+"C:/Users/marci/source/repos/Bratalian/Content/player.png","C:/Users/marci/source/repos/Bratalian/Content/bin/DesktopGL/player.xnb","TextureProcessor","Texture2DContent",204,4181,0,0090108
+"C:/Users/marci/source/repos/Bratalian/Content/tileset.png","C:/Users/marci/source/repos/Bratalian/Content/bin/DesktopGL/tileset.xnb","TextureProcessor","Texture2DContent",1194,5845,0,003054
