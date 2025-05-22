@@ -7,239 +7,269 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Bratalian
 {
+    /// <summary>
+    /// Mapa infinito por chunks de 64×64 tiles, com relva gerada via Perlin Noise
+    /// (suave e contínuo) e auto-tiling de bordas/interior usando grass2.png.
+    /// </summary>
     public class Map
     {
-        public const int TileSize = 11;  // cada célula no ecrã mede 11×11 px
-        private const int GrassTileSize = 16;  // dimensão real de cada tile em grass2.png
-        private const int PathWidth = 5;   // largura constante dos caminhos (ímpar p/ centrar)
+        public const int TileSize = 11;
+        private const int ChunkSize = 64;
 
-        private readonly bool[,] _grass;       // true = grama
-        private readonly bool[,] _path;        // true = chão
+        // Parâmetros do Perlin
+        private const int Octaves = 4;
+        private const double Lacunarity = 2.0;
+        private const double Persistence = 0.5;
+        private const double NoiseScale = 0.05;  // aumenta a frequência
+        private const double Threshold = 0.0;   // relva onde noise > 0
 
-        private Texture2D _dirtTex, _grassTex;
-        private readonly Rectangle[] _dirtSrc = new Rectangle[6];
-        private readonly Rectangle[,] _grassSrc = new Rectangle[4, 4];
-        private readonly int[,] _dirtIndex;
-        private readonly int[,] _interiorChoice;
-        // -1 = não interior completo
-        //  0 = topo-esq   (row=1,col=1)
-        //  1 = topo-dir   (row=1,col=2)
-        //  2 = base-esq   (row=2,col=1)
-        //  3 = base-dir   (row=2,col=2)
+        private readonly int _seed;
+        private readonly Dictionary<Point, Chunk> _chunks = new();
+        private ContentManager _content;
 
-        public readonly int Width, Height;
-
-        public Map(bool[,] grass)
+        public Map(int seed)
         {
-            _grass = grass;
-            Height = grass.GetLength(0);
-            Width = grass.GetLength(1);
-            _path = new bool[Height, Width];
-            _dirtIndex = new int[Height, Width];
-            _interiorChoice = new int[Height, Width];
-
-            var rnd = new Random(12345);
-
-            // 1) índice aleatório de dirt (0–5)
-            for (int y = 0; y < Height; y++)
-                for (int x = 0; x < Width; x++)
-                    _dirtIndex[y, x] = rnd.Next(6);
-
-            // 2) gera alguns caminhos lineares com espaçamentos aleatórios,
-            //    garantindo zonas de grama >=5×5
-            GenerateLinearGridPaths(rnd);
-
-            // 3) escava o caminho (remove grama)
-            for (int y = 0; y < Height; y++)
-                for (int x = 0; x < Width; x++)
-                    if (_path[y, x])
-                        _grass[y, x] = false;
-
-            // 4) remove manchas de grama <5×5
-            RemoveSmallGrassZones(minWidth: 5, minHeight: 5);
-
-            // 5) pré-calcula interiores de grama para auto-tiling
-            int w0 = 4, w1 = 3, w2 = 1, w3 = 1, total = w0 + w1 + w2 + w3;
-            for (int y = 0; y < Height; y++)
-                for (int x = 0; x < Width; x++)
-                {
-                    bool interior = _grass[y, x]
-                                 && y > 0 && y < Height - 1
-                                 && x > 0 && x < Width - 1
-                                 && _grass[y - 1, x] && _grass[y + 1, x]
-                                 && _grass[y, x - 1] && _grass[y, x + 1];
-
-                    if (!interior) _interiorChoice[y, x] = -1;
-                    else
-                    {
-                        int r = rnd.Next(total);
-                        _interiorChoice[y, x] =
-                            r < w0 ? 0 :
-                            r < w0 + w1 ? 1 :
-                            r < w0 + w1 + w2 ? 2 : 3;
-                    }
-                }
+            _seed = seed;
         }
 
-        private void GenerateLinearGridPaths(Random rnd)
-        {
-            // vamos escolher entre 2 e 4 caminhos horizontais e 2 a 4 verticais,
-            // mas com espaçamento aleatório garantindo faixas de grama ≥5
-            int half = PathWidth / 2;
-
-            // horizontais
-            int hCount = rnd.Next(2, 5);
-            var chosenY = new List<int>();
-            while (chosenY.Count < hCount)
-            {
-                int y = rnd.Next(half, Height - half);
-                bool ok = true;
-                foreach (var yy in chosenY)
-                    if (Math.Abs(yy - y) < PathWidth + 5) { ok = false; break; }
-                if (ok) chosenY.Add(y);
-            }
-            // desenha cada horizontal
-            foreach (var yCenter in chosenY)
-            {
-                for (int dy = -half; dy <= half; dy++)
-                {
-                    int yy = yCenter + dy;
-                    if (yy < 0 || yy >= Height) continue;
-                    for (int x = 0; x < Width; x++)
-                        _path[yy, x] = true;
-                }
-            }
-
-            // verticais
-            int vCount = rnd.Next(2, 5);
-            var chosenX = new List<int>();
-            while (chosenX.Count < vCount)
-            {
-                int x = rnd.Next(half, Width - half);
-                bool ok = true;
-                foreach (var xx in chosenX)
-                    if (Math.Abs(xx - x) < PathWidth + 5) { ok = false; break; }
-                if (ok) chosenX.Add(x);
-            }
-            // desenha cada vertical
-            foreach (var xCenter in chosenX)
-            {
-                for (int dx = -half; dx <= half; dx++)
-                {
-                    int xx = xCenter + dx;
-                    if (xx < 0 || xx >= Width) continue;
-                    for (int y = 0; y < Height; y++)
-                        _path[y, xx] = true;
-                }
-            }
-        }
-
-        private void RemoveSmallGrassZones(int minWidth, int minHeight)
-        {
-            var visited = new bool[Height, Width];
-            for (int y0 = 0; y0 < Height; y0++)
-                for (int x0 = 0; x0 < Width; x0++)
-                {
-                    if (!_grass[y0, x0] || visited[y0, x0]) continue;
-                    var queue = new Queue<Point>();
-                    var zone = new List<Point>();
-                    visited[y0, x0] = true;
-                    queue.Enqueue(new Point(x0, y0));
-                    while (queue.Count > 0)
-                    {
-                        var p = queue.Dequeue();
-                        zone.Add(p);
-                        foreach (var d in new[] { new Point(0, 1), new Point(1, 0), new Point(0, -1), new Point(-1, 0) })
-                        {
-                            int nx = p.X + d.X, ny = p.Y + d.Y;
-                            if (nx >= 0 && nx < Width && ny >= 0 && ny < Height
-                               && _grass[ny, nx] && !visited[ny, nx])
-                            {
-                                visited[ny, nx] = true;
-                                queue.Enqueue(new Point(nx, ny));
-                            }
-                        }
-                    }
-                    // bounding box
-                    int minX = int.MaxValue, maxX = int.MinValue, minY = int.MaxValue, maxY = int.MinValue;
-                    foreach (var p in zone)
-                    {
-                        minX = Math.Min(minX, p.X); maxX = Math.Max(maxX, p.X);
-                        minY = Math.Min(minY, p.Y); maxY = Math.Max(maxY, p.Y);
-                    }
-                    if (maxX - minX + 1 < minWidth || maxY - minY + 1 < minHeight)
-                    {
-                        foreach (var p in zone)
-                            _grass[p.Y, p.X] = false;
-                    }
-                }
-        }
-
+        /// <summary>
+        /// Deve ser chamado uma vez no LoadContent do Game1.
+        /// </summary>
         public void LoadContent(ContentManager content)
         {
-            // dirt atlas 6×1 de 16×16
-            _dirtTex = content.Load<Texture2D>("dirt");
-            for (int i = 0; i < 6; i++)
-                _dirtSrc[i] = new Rectangle(i * 16, 0, 16, 16);
-
-            // grass2 atlas 4×4 de 16×16
-            _grassTex = content.Load<Texture2D>("grass2");
-            for (int r = 0; r < 4; r++)
-                for (int c = 0; c < 4; c++)
-                    _grassSrc[r, c] = new Rectangle(c * GrassTileSize, r * GrassTileSize, GrassTileSize, GrassTileSize);
+            _content = content;
+            // força a criar e carregar o primeiro chunk
+            GetChunk(0, 0);
         }
 
-        public void Draw(SpriteBatch sb)
+        /// <summary>
+        /// Desenha todos os tiles dentro de viewRect (coordenadas de mundo, em px).
+        /// </summary>
+        public void Draw(SpriteBatch sb, Rectangle viewRect)
         {
-            for (int y = 0; y < Height; y++)
-                for (int x = 0; x < Width; x++)
+            int tx0 = viewRect.Left / TileSize;
+            int tx1 = viewRect.Right / TileSize + 1;
+            int ty0 = viewRect.Top / TileSize;
+            int ty1 = viewRect.Bottom / TileSize + 1;
+
+            for (int ty = ty0; ty <= ty1; ty++)
+                for (int tx = tx0; tx <= tx1; tx++)
                 {
-                    var dest = new Rectangle(x * TileSize, y * TileSize, TileSize, TileSize);
+                    // calcula que chunk e que posição local
+                    int cx = FloorDiv(tx, ChunkSize);
+                    int cy = FloorDiv(ty, ChunkSize);
+                    var chunk = GetChunk(cx, cy);
 
-                    // 1) chão de base
-                    sb.Draw(_dirtTex, dest, _dirtSrc[0], Color.White);
+                    int lx = Mod(tx, ChunkSize);
+                    int ly = Mod(ty, ChunkSize);
 
-                    // 2) caminho?
-                    if (_path[y, x])
+                    var dest = new Rectangle(
+                        tx * TileSize,
+                        ty * TileSize,
+                        TileSize,
+                        TileSize
+                    );
+
+                    // 1) dirt de base
+                    int d = chunk.DirtIndex[ly, lx];
+                    sb.Draw(chunk.DirtTex, dest, chunk.DirtSrc[d], Color.White);
+
+                    // 2) se for relva, auto-tiling de bordas/interior
+                    if (chunk.Grass[ly, lx])
                     {
-                        sb.Draw(_dirtTex, dest, _dirtSrc[1], Color.White);
-                        continue;
-                    }
-
-                    // 3) relva com auto-tiling
-                    if (_grass[y, x])
-                    {
-                        bool top = (y > 0 && _grass[y - 1, x]);
-                        bool bottom = (y < Height - 1 && _grass[y + 1, x]);
-                        bool left = (x > 0 && _grass[y, x - 1]);
-                        bool right = (x < Width - 1 && _grass[y, x + 1]);
+                        bool top = (ly > 0 && chunk.Grass[ly - 1, lx]);
+                        bool bottom = (ly < ChunkSize - 1 && chunk.Grass[ly + 1, lx]);
+                        bool left = (lx > 0 && chunk.Grass[ly, lx - 1]);
+                        bool right = (lx < ChunkSize - 1 && chunk.Grass[ly, lx + 1]);
 
                         int row, col;
+
                         if (!top)
                         {
-                            row = 0; col = !left ? 0 : !right ? 3 : (((x + y) & 1) == 0 ? 1 : 2);
+                            // borda superior
+                            row = 0;
+                            col = !left ? 0
+                                : !right ? 3
+                                : ((lx + ly) & 1) == 0 ? 1 : 2;
                         }
                         else if (!bottom)
                         {
-                            row = 3; col = !left ? 0 : !right ? 3 : (((x + y) & 1) == 0 ? 1 : 2);
+                            // borda inferior
+                            row = 3;
+                            col = !left ? 0
+                                : !right ? 3
+                                : ((lx + ly) & 1) == 0 ? 1 : 2;
                         }
                         else if (!left)
                         {
+                            // borda esquerda
                             row = 1; col = 0;
                         }
                         else if (!right)
                         {
+                            // borda direita
                             row = 1; col = 3;
                         }
                         else
                         {
-                            int ch = _interiorChoice[y, x];
+                            // interior completo (usando escolha ponderada)
+                            int ch = chunk.InteriorChoice[ly, lx];
                             row = (ch < 2 ? 1 : 2);
                             col = (ch % 2 == 0 ? 1 : 2);
                         }
-                        sb.Draw(_grassTex, dest, _grassSrc[row, col], Color.White);
+
+                        sb.Draw(chunk.GrassTex, dest, chunk.GrassSrc[row, col], Color.White);
                     }
                 }
+        }
+
+        /// <summary>
+        /// Retorna (ou cria) o chunk em (cx,cy) e garante que já carregou os atlas.
+        /// </summary>
+        public Chunk GetChunk(int cx, int cy)
+        {
+            var key = new Point(cx, cy);
+            if (!_chunks.TryGetValue(key, out var chunk))
+            {
+                chunk = new Chunk(cx, cy, ChunkSize, _seed);
+                _chunks[key] = chunk;
+                chunk.LoadContent(_content);
+            }
+            return chunk;
+        }
+
+        private static int FloorDiv(int a, int b) => (a >= 0 ? a : a - b + 1) / b;
+        private static int Mod(int a, int b) => ((a % b) + b) % b;
+
+        /// <summary>
+        /// Cada chunk de ChunkSize×ChunkSize, gerado via Perlin Noise determinístico.
+        /// </summary>
+        public class Chunk
+        {
+            public readonly bool[,] Grass;
+            public readonly int[,] DirtIndex;
+            public readonly int[,] InteriorChoice;
+            public Texture2D DirtTex, GrassTex;
+            public Rectangle[] DirtSrc;
+            public Rectangle[,] GrassSrc;
+
+            private static bool _atlasesLoaded;
+            private static Texture2D _dAt, _gAt;
+            private static Rectangle[] _dSrc;
+            private static Rectangle[,] _gSrc;
+
+            public Chunk(int cx, int cy, int size, int seed)
+            {
+                Grass = new bool[size, size];
+                DirtIndex = new int[size, size];
+                InteriorChoice = new int[size, size];
+
+                var rnd = new Random(seed ^ cx ^ (cy << 16));
+
+                // 1) gera dirtIndex aleatório (0..5)
+                for (int y = 0; y < size; y++)
+                    for (int x = 0; x < size; x++)
+                        DirtIndex[y, x] = rnd.Next(6);
+
+                // 2) determina relva via Perlin Noise contínuo
+                for (int y = 0; y < size; y++)
+                    for (int x = 0; x < size; x++)
+                    {
+                        int gx = cx * size + x;
+                        int gy = cy * size + y;
+                        double n = PerlinNoise(gx * NoiseScale, gy * NoiseScale, seed);
+                        Grass[y, x] = (n > Threshold);
+                    }
+
+                // 3) interiorChoice para auto-tiling (só centrais)
+                for (int y = 0; y < size; y++)
+                    for (int x = 0; x < size; x++)
+                    {
+                        if (Grass[y, x]
+                            && y > 0 && y < size - 1
+                            && x > 0 && x < size - 1
+                            && Grass[y - 1, x] && Grass[y + 1, x]
+                            && Grass[y, x - 1] && Grass[y, x + 1])
+                        {
+                            int r = rnd.Next(9);
+                            InteriorChoice[y, x] =
+                                r < 4 ? 0 :
+                                r < 7 ? 1 :
+                                r < 8 ? 2 : 3;
+                        }
+                        else InteriorChoice[y, x] = -1;
+                    }
+            }
+
+            /// <summary>
+            /// Carrega atlas de dirt e grass2 apenas uma vez.
+            /// </summary>
+            public void LoadContent(ContentManager content)
+            {
+                if (!_atlasesLoaded)
+                {
+                    _dAt = content.Load<Texture2D>("dirt");
+                    _dSrc = new Rectangle[6];
+                    for (int i = 0; i < 6; i++)
+                        _dSrc[i] = new Rectangle(i * 16, 0, 16, 16);
+
+                    _gAt = content.Load<Texture2D>("grass2");
+                    _gSrc = new Rectangle[4, 4];
+                    for (int r = 0; r < 4; r++)
+                        for (int c = 0; c < 4; c++)
+                            _gSrc[r, c] = new Rectangle(c * 16, r * 16, 16, 16);
+
+                    _atlasesLoaded = true;
+                }
+
+                DirtTex = _dAt;
+                DirtSrc = _dSrc;
+                GrassTex = _gAt;
+                GrassSrc = _gSrc;
+            }
+
+            // --- Funções Perlin Noise 2D ---
+
+            private static double Noise(int ix, int iy, int seed)
+            {
+                int n = ix + iy * 57 + seed * 131;
+                n = (n << 13) ^ n;
+                return 1.0 - ((n * (n * (n * 15731 + 789221) + 1376312589)
+                              & 0x7fffffff) / 1073741824.0);
+            }
+
+            private static double Lerp(double a, double b, double t)
+                => a + (b - a) * (0.5 - 0.5 * Math.Cos(t * Math.PI));
+
+            private static double Smooth(double x, double y, int seed)
+            {
+                int ix = (int)Math.Floor(x);
+                int iy = (int)Math.Floor(y);
+                double fx = x - ix;
+                double fy = y - iy;
+
+                double v1 = Noise(ix, iy, seed);
+                double v2 = Noise(ix + 1, iy, seed);
+                double v3 = Noise(ix, iy + 1, seed);
+                double v4 = Noise(ix + 1, iy + 1, seed);
+
+                double i1 = Lerp(v1, v2, fx);
+                double i2 = Lerp(v3, v4, fx);
+                return Lerp(i1, i2, fy);
+            }
+
+            private static double PerlinNoise(double x, double y, int seed)
+            {
+                double total = 0, freq = 1, amp = 1, max = 0;
+                for (int o = 0; o < Octaves; o++)
+                {
+                    total += Smooth(x * freq, y * freq, seed + o) * amp;
+                    max += amp;
+                    amp *= Persistence;
+                    freq *= Lacunarity;
+                }
+                return total / max;
+            }
         }
     }
 }
