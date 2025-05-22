@@ -4,11 +4,23 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
-    <File>C:/Users/marci/source/repos/Bratalian/Content/File.spritefont</File>
-    <File>C:/Users/marci/source/repos/Bratalian/Content/player.png</File>
-    <File>C:/Users/marci/source/repos/Bratalian/Content/tileset.png</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Content/../../../../Desktop/Free Character Sprites - Fantasy Dreamland/16x16/Char_002_Idle.png</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Content/../../../../Desktop/Free Character Sprites - Fantasy Dreamland/16x16/Char_002.png</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Content/../../../../Desktop/tiles jogo/fence.png</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Content/dirt.png</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Content/File.spritefont</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Content/grass.png</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Content/grass2.png</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Content/path.png</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Content/tileset.png</File>
   </SourceFiles>
   <DestFiles>
+    <File>Char_002_Idle.png</File>
+    <File>Char_002.png</File>
+    <File>fence.png</File>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

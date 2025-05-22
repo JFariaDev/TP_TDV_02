@@ -1,82 +1,110 @@
-﻿using System.Collections.Generic;
+﻿// Player.cs
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace Bratalian
 {
+    public enum Direction { Down = 0, Left = 1, Right = 2, Up = 3 }
+
     public class Player
     {
-        public Vector2 Position;
-        private readonly Texture2D _texture;
-        private readonly float _speed = 100f;
-        private readonly float _scale;
-        private readonly int _tileSize;
-        private readonly HashSet<int> _impassables;
+        private const int FrameCount = 4;
+        private const float FrameDuration = 0.15f;
 
-        public Player(Texture2D texture, Vector2 startPosition, int tileSize, HashSet<int> impassables)
+        private Texture2D _walkTex, _idleTex;
+        private Vector2 _position;
+        private float _speed;
+
+        private int _cellWidth, _cellHeight;
+        private Rectangle[,] _walkFrames, _idleFrames;
+
+        private Direction _dir = Direction.Down;
+        private int _walkFrame = 0, _idleFrame = 0;
+        private float _walkTimer = 0f, _idleTimer = 0f;
+
+        public Player(Vector2 startPosition, float speed = 120f)
         {
-            _texture = texture;
-            Position = startPosition;
-            _tileSize = tileSize;
-            _impassables = impassables;
-            _scale = tileSize / (float)texture.Width;
+            _position = startPosition;
+            _speed = speed;
         }
 
-        public void Update(GameTime gameTime, int[,] map)
+        public void LoadContent(ContentManager content)
+        {
+            _walkTex = content.Load<Texture2D>("Char_002");
+            _idleTex = content.Load<Texture2D>("Char_002_Idle");
+
+            // calcula o tamanho de cada célula (4 cols × 4 rows)
+            _cellWidth = _walkTex.Width / FrameCount;  // ex: 96/4 = 24
+            _cellHeight = _walkTex.Height / 4;           // ex: 96/4 = 24
+
+            _walkFrames = new Rectangle[4, FrameCount];
+            _idleFrames = new Rectangle[4, FrameCount];
+
+            // cropa 2px do topo de cada célula para evitar bleed
+            int marginTop = 2;
+            int h = _cellHeight - marginTop;
+
+            for (int d = 0; d < 4; d++)
+                for (int f = 0; f < FrameCount; f++)
+                {
+                    var rect = new Rectangle(
+                        f * _cellWidth,
+                        d * _cellHeight + marginTop,
+                        _cellWidth,
+                        h
+                    );
+                    _walkFrames[d, f] = rect;
+                    _idleFrames[d, f] = rect;
+                }
+        }
+
+        public void Update(GameTime gameTime)
         {
             var kb = Keyboard.GetState();
-            Vector2 move = Vector2.Zero;
-            if (kb.IsKeyDown(Keys.W)) move.Y -= 1;
-            if (kb.IsKeyDown(Keys.S)) move.Y += 1;
-            if (kb.IsKeyDown(Keys.A)) move.X -= 1;
-            if (kb.IsKeyDown(Keys.D)) move.X += 1;
-            if (move != Vector2.Zero) move.Normalize();
+            Vector2 vel = Vector2.Zero;
 
-            Vector2 delta = move * _speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (kb.IsKeyDown(Keys.W) || kb.IsKeyDown(Keys.Up)) { vel.Y = -1; _dir = Direction.Up; }
+            else if (kb.IsKeyDown(Keys.S) || kb.IsKeyDown(Keys.Down)) { vel.Y = 1; _dir = Direction.Down; }
+            else if (kb.IsKeyDown(Keys.A) || kb.IsKeyDown(Keys.Left)) { vel.X = -1; _dir = Direction.Left; }
+            else if (kb.IsKeyDown(Keys.D) || kb.IsKeyDown(Keys.Right)) { vel.X = 1; _dir = Direction.Right; }
 
-            TryMove(new Vector2(delta.X, 0), map);
-            TryMove(new Vector2(0, delta.Y), map);
-        }
-
-        private void TryMove(Vector2 delta, int[,] map)
-        {
-            Vector2 newPos = Position + delta;
-            var bounds = new Rectangle((int)newPos.X, (int)newPos.Y, _tileSize, _tileSize);
-
-            int left = bounds.Left / _tileSize;
-            int right = (bounds.Right - 1) / _tileSize;
-            int top = bounds.Top / _tileSize;
-            int bottom = (bounds.Bottom - 1) / _tileSize;
-
-            for (int y = top; y <= bottom; y++)
-                for (int x = left; x <= right; x++)
+            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (vel != Vector2.Zero)
+            {
+                _position += vel * _speed * dt;
+                _walkTimer += dt;
+                if (_walkTimer >= FrameDuration)
                 {
-                    if (y < 0 || y >= map.GetLength(0) ||
-                        x < 0 || x >= map.GetLength(1) ||
-                        _impassables.Contains(map[y, x]))
-                    {
-                        return; // colisão
-                    }
+                    _walkTimer -= FrameDuration;
+                    _walkFrame = (_walkFrame + 1) % FrameCount;
                 }
-
-            Position = newPos;
+                _idleFrame = 0; _idleTimer = 0f;
+            }
+            else
+            {
+                _idleTimer += dt;
+                if (_idleTimer >= FrameDuration)
+                {
+                    _idleTimer -= FrameDuration;
+                    _idleFrame = (_idleFrame + 1) % FrameCount;
+                }
+                _walkFrame = 0; _walkTimer = 0f;
+            }
         }
 
         public void Draw(SpriteBatch sb)
         {
-            var origin = new Vector2(_texture.Width / 2f, _texture.Height / 2f);
-            sb.Draw(
-                _texture,
-                Position + origin * _scale,
-                null,
-                Color.White,
-                0f,
-                origin,
-                _scale,
-                SpriteEffects.None,
-                0f
-            );
+            bool isIdle = (_walkFrame == 0 && _walkTimer == 0f);
+            var tex = isIdle ? _idleTex : _walkTex;
+            var frames = isIdle ? _idleFrames : _walkFrames;
+            int frameIdx = isIdle ? _idleFrame : _walkFrame;
+
+            sb.Draw(tex, _position, frames[(int)_dir, frameIdx], Color.White);
         }
+
+        public Vector2 Position => _position;
     }
 }
+
