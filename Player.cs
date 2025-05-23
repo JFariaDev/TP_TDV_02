@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿// Player.cs
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -11,7 +12,7 @@ namespace Bratalian
         private readonly float _speed;
 
         private Texture2D _walkTex, _idleTex;
-        private int _direction;     // 0=down,1=left,2=right,3=up
+        private int _direction;        // 0=down,1=left,2=right,3=up
         private int _frame, _frameCount = 4;
         private float _timer, _frameDuration = 0.15f;
 
@@ -27,23 +28,41 @@ namespace Bratalian
             _idleTex = content.Load<Texture2D>("Char_002_Idle");
         }
 
-        public void Update(GameTime gt)
+        public void Update(GameTime gameTime)
         {
             var ks = Keyboard.GetState();
             Vector2 mov = Vector2.Zero;
 
-            if (ks.IsKeyDown(Keys.W)) { mov.Y -= 1; _direction = 3; }
-            else if (ks.IsKeyDown(Keys.S)) { mov.Y += 1; _direction = 0; }
-            if (ks.IsKeyDown(Keys.A)) { mov.X -= 1; _direction = 1; }
-            else if (ks.IsKeyDown(Keys.D)) { mov.X += 1; _direction = 2; }
+            // apenas movimento horizontal ou vertical, sem obliquo
+            if (ks.IsKeyDown(Keys.A))
+            {
+                mov.X = -1;
+                _direction = 1;  // left
+            }
+            else if (ks.IsKeyDown(Keys.D))
+            {
+                mov.X = 1;
+                _direction = 2;  // right
+            }
+            else if (ks.IsKeyDown(Keys.W))
+            {
+                mov.Y = -1;
+                _direction = 3;  // up
+            }
+            else if (ks.IsKeyDown(Keys.S))
+            {
+                mov.Y = 1;
+                _direction = 0;  // down
+            }
 
             if (mov != Vector2.Zero)
             {
+                // normaliza para manter velocidade constante
                 mov.Normalize();
-                Position += mov * _speed * (float)gt.ElapsedGameTime.TotalSeconds;
+                Position += mov * _speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-                // animação de andar
-                _timer += (float)gt.ElapsedGameTime.TotalSeconds;
+                // anima walking
+                _timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
                 if (_timer > _frameDuration)
                 {
                     _frame = (_frame + 1) % _frameCount;
@@ -52,7 +71,7 @@ namespace Bratalian
             }
             else
             {
-                // reset frame para idle
+                // idle
                 _frame = 0;
                 _timer = 0f;
             }
@@ -60,10 +79,10 @@ namespace Bratalian
 
         public void Draw(SpriteBatch sb)
         {
-            // escolhe sprite sheet
-            var tex = Keyboard.GetState().GetPressedKeys().Length > 0 ? _walkTex : _idleTex;
+            // escolhe sheet
+            bool walking = _timer > 0f;
+            var tex = walking ? _walkTex : _idleTex;
 
-            // cada tile 24×24 no sheet de 16×16 pixels de base
             int tileSize = 24;
             var src = new Rectangle(
                 _frame * tileSize,
@@ -71,9 +90,17 @@ namespace Bratalian
                 tileSize, tileSize
             );
 
-            sb.Draw(tex, Position, src, Color.White, 0f,
-                    new Vector2(tileSize / 2, tileSize / 2),
-                    1f, SpriteEffects.None, 0f);
+            sb.Draw(
+                tex,
+                Position,
+                src,
+                Color.White,
+                0f,
+                new Vector2(tileSize / 2, tileSize / 2),
+                1f,
+                SpriteEffects.None,
+                0f
+            );
         }
     }
 }

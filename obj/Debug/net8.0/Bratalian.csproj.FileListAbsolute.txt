@@ -109,3 +109,16 @@ C:\Users\marci\source\repos\TP_TDV_02\obj\Debug\net8.0\refint\Bratalian.dll
 C:\Users\marci\source\repos\TP_TDV_02\obj\Debug\net8.0\Bratalian.pdb
 C:\Users\marci\source\repos\TP_TDV_02\obj\Debug\net8.0\Bratalian.genruntimeconfig.cache
 C:\Users\marci\source\repos\TP_TDV_02\obj\Debug\net8.0\ref\Bratalian.dll
+C:\Users\marci\source\repos\TP_TDV_02\bin\Debug\net8.0\Content\bombardini_guzzini.xnb
+C:\Users\marci\source\repos\TP_TDV_02\bin\Debug\net8.0\Content\bombardino_crocodilo.xnb
+C:\Users\marci\source\repos\TP_TDV_02\bin\Debug\net8.0\Content\boneca_ambalabu.xnb
+C:\Users\marci\source\repos\TP_TDV_02\bin\Debug\net8.0\Content\brr_brr_patapim.xnb
+C:\Users\marci\source\repos\TP_TDV_02\bin\Debug\net8.0\Content\cappuccino_assassino.xnb
+C:\Users\marci\source\repos\TP_TDV_02\bin\Debug\net8.0\Content\frigo_cammello.xnb
+C:\Users\marci\source\repos\TP_TDV_02\bin\Debug\net8.0\Content\la_vaca_saturno_saturnita.xnb
+C:\Users\marci\source\repos\TP_TDV_02\bin\Debug\net8.0\Content\lirili_larila.xnb
+C:\Users\marci\source\repos\TP_TDV_02\bin\Debug\net8.0\Content\tralalero_tralala.xnb
+C:\Users\marci\source\repos\TP_TDV_02\bin\Debug\net8.0\Content\trippi_troppi_troppa_trippa.xnb
+C:\Users\marci\source\repos\TP_TDV_02\bin\Debug\net8.0\Content\trulimero_trulicina.xnb
+C:\Users\marci\source\repos\TP_TDV_02\bin\Debug\net8.0\Content\tung_tung_tung_sahur.xnb
+C:\Users\marci\source\repos\TP_TDV_02\bin\Debug\net8.0\Content\bratalian_db.json

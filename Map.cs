@@ -7,15 +7,15 @@ using Microsoft.Xna.Framework.Graphics;
 namespace Bratalian
 {
     /// <summary>
-    /// Mapa infinito em chunks de 32×32 tiles, com ilhas de relva
-    /// (mínimo 5×5, sub-ilhas ≥3×3) geradas localmente em cada chunk.
+    /// Mapa infinito em chunks de 32x32 tiles, com ilhas de relva
+    /// geradas proceduralmente (minimo 5x5, sem sub-ilhas <3x3).
     /// </summary>
     public class Map
     {
-        public const int TileSize = 11;   // px por tile no ecrã
-        private const int ChunkSize = 32;  // cada chunk tem 32×32 tiles
+        public const int TileSize = 11;   // px por tile no ecra
+        private const int ChunkSize = 32;  // cada chunk tem 32x32 tiles
 
-        // parâmetros de ilha
+        // parametros de geracao de ilhas
         private const int MinPatch = 5;
         private const int MinSub = 3;
         private const int SepTiles = 3;
@@ -32,17 +32,17 @@ namespace Bratalian
         }
 
         /// <summary>
-        /// Deve ser chamado em Game1.LoadContent(...)
+        /// Deve ser chamado em Game1.LoadContent
         /// </summary>
         public void LoadContent(ContentManager content)
         {
             _content = content;
-            // força criação do chunk (0,0)
+            // pre-cria chunk (0,0)
             GetChunk(0, 0);
         }
 
         /// <summary>
-        /// Desenha apenas o que cai dentro de viewRect (px mundo).
+        /// Desenha apenas o que cabe dentro de viewRect (px no mundo).
         /// </summary>
         public void Draw(SpriteBatch sb, Rectangle viewRect)
         {
@@ -66,7 +66,7 @@ namespace Bratalian
                         TileSize, TileSize
                     );
 
-                    // 1) dirt de base
+                    // desenha dirt
                     sb.Draw(
                         chunk.DirtTex,
                         dest,
@@ -74,7 +74,7 @@ namespace Bratalian
                         Color.White
                     );
 
-                    // 2) relva (auto-tiling)
+                    // desenha relva com auto-tiling
                     if (chunk.Grass[ly, lx])
                     {
                         bool top = ly > 0 && chunk.Grass[ly - 1, lx];
@@ -122,6 +122,20 @@ namespace Bratalian
                 }
         }
 
+        /// <summary>
+        /// Retorna true se o tile (tileX,tileY) for relva.
+        /// </summary>
+        public bool IsGrassTile(int tileX, int tileY)
+        {
+            int cx = tileX >= 0 ? tileX / ChunkSize : (tileX - ChunkSize + 1) / ChunkSize;
+            int cy = tileY >= 0 ? tileY / ChunkSize : (tileY - ChunkSize + 1) / ChunkSize;
+            var chunk = GetChunk(cx, cy);
+
+            int lx = ((tileX % ChunkSize) + ChunkSize) % ChunkSize;
+            int ly = ((tileY % ChunkSize) + ChunkSize) % ChunkSize;
+            return chunk.Grass[ly, lx];
+        }
+
         private Chunk GetChunk(int cx, int cy)
         {
             var key = new Point(cx, cy);
@@ -139,7 +153,7 @@ namespace Bratalian
         private static int Mod(int a, int b)
             => ((a % b) + b) % b;
 
-        // --- cada chunk contém um pedaço local do mapa ---
+        // cada chunk contem seu pedaco de mapa
         private class Chunk
         {
             public readonly bool[,] Grass;
@@ -149,7 +163,6 @@ namespace Bratalian
             public Rectangle[] DirtSrc;
             public Rectangle[,] GrassSrc;
 
-            // atlases partilhados
             private static bool _loaded;
             private static Texture2D _dAtlas, _gAtlas;
             private static Rectangle[] _dSrc;
@@ -162,16 +175,15 @@ namespace Bratalian
                 DirtIndex = new int[size, size];
                 Interior = new int[size, size];
 
-                // 1) dirt aleatório
+                // dirt aleatorio
                 for (int y = 0; y < size; y++)
                     for (int x = 0; x < size; x++)
                         DirtIndex[y, x] = rnd.Next(6);
 
-                // 2) gera entre 2 e 4 patches retangulares
+                // gera 2-4 retangulos
                 var rects = new List<Rectangle>();
-                int target = rnd.Next(2, 5);
-                int tries = target * 5;
-                while (rects.Count < target && tries-- > 0)
+                int targ = rnd.Next(2, 5), tries = targ * 5;
+                while (rects.Count < targ && tries-- > 0)
                 {
                     int w = rnd.Next(MinPatch, size / 2);
                     int h = rnd.Next(MinPatch, size / 2);
@@ -192,7 +204,7 @@ namespace Bratalian
                     if (ok) rects.Add(r);
                 }
 
-                // 3) carve + remove sub-ilhas
+                // carve + remove sub-ilhas pequenas
                 foreach (var r in rects)
                 {
                     bool[,] mask = new bool[r.Height, r.Width];
@@ -215,9 +227,7 @@ namespace Bratalian
                                         int nx = xx + dx, ny = yy + dy;
                                         if (nx < 0 || nx >= r.Width || ny < 0 || ny >= r.Height
                                             || !mask[ny, nx])
-                                        {
-                                            all8 = false; break;
-                                        }
+                                        { all8 = false; break; }
                                     }
                                 nxt[yy, xx] = all8
                                     ? true
@@ -234,7 +244,7 @@ namespace Bratalian
                                 Grass[r.Y + yy, r.X + xx] = true;
                 }
 
-                // 4) auto-tiling interior
+                // auto-tiling interior
                 int w0 = 4, w1 = 3, w2 = 1, w3 = 1, tot = w0 + w1 + w2 + w3;
                 for (int y = 0; y < size; y++)
                     for (int x = 0; x < size; x++)
@@ -265,62 +275,50 @@ namespace Bratalian
 
                     _gAtlas = cm.Load<Texture2D>("grass2");
                     _gSrc = new Rectangle[4, 4];
-                    for (int r = 0; r < 4; r++)
-                        for (int c = 0; c < 4; c++)
+                    for (int r = 0; r < 4; r++) for (int c = 0; c < 4; c++)
                             _gSrc[r, c] = new Rectangle(c * 16, r * 16, 16, 16);
 
                     _loaded = true;
                 }
-                DirtTex = _dAtlas;
-                DirtSrc = _dSrc;
-                GrassTex = _gAtlas;
-                GrassSrc = _gSrc;
+                DirtTex = _dAtlas; DirtSrc = _dSrc;
+                GrassTex = _gAtlas; GrassSrc = _gSrc;
             }
 
             private static void RemoveSmall(bool[,] m, int mw, int mh)
             {
                 int h = m.GetLength(0), w = m.GetLength(1);
                 var vis = new bool[h, w];
-                var dirs = new[]{ new Point(1,0), new Point(-1,0),
-                                  new Point(0,1), new Point(0,-1) };
-                for (int yy = 0; yy < h; yy++)
-                    for (int xx = 0; xx < w; xx++)
+                var dirs = new[]{new Point(1,0),new Point(-1,0),
+                               new Point(0,1),new Point(0,-1)};
+                for (int yy = 0; yy < h; yy++) for (int xx = 0; xx < w; xx++)
                     {
                         if (!m[yy, xx] || vis[yy, xx]) continue;
                         var q = new Queue<Point>();
                         var zone = new List<Point>();
-                        vis[yy, xx] = true;
-                        q.Enqueue(new Point(xx, yy));
+                        vis[yy, xx] = true; q.Enqueue(new Point(xx, yy));
                         while (q.Count > 0)
                         {
-                            var p = q.Dequeue();
-                            zone.Add(p);
+                            var p = q.Dequeue(); zone.Add(p);
                             foreach (var d in dirs)
                             {
                                 int nx = p.X + d.X, ny = p.Y + d.Y;
                                 if (nx >= 0 && nx < w && ny >= 0 && ny < h
                                     && m[ny, nx] && !vis[ny, nx])
                                 {
-                                    vis[ny, nx] = true;
-                                    q.Enqueue(new Point(nx, ny));
+                                    vis[ny, nx] = true; q.Enqueue(new Point(nx, ny));
                                 }
                             }
                         }
-
                         int minX = w, maxX = 0, minY = h, maxY = 0;
                         foreach (var p in zone)
                         {
-                            minX = Math.Min(minX, p.X);
-                            maxX = Math.Max(maxX, p.X);
-                            minY = Math.Min(minY, p.Y);
-                            maxY = Math.Max(maxY, p.Y);
+                            minX = Math.Min(minX, p.X); maxX = Math.Max(maxX, p.X);
+                            minY = Math.Min(minY, p.Y); maxY = Math.Max(maxY, p.Y);
                         }
                         if (maxX - minX + 1 < mw || maxY - minY + 1 < mh)
-                            foreach (var p in zone)
-                                m[p.Y, p.X] = false;
+                            foreach (var p in zone) m[p.Y, p.X] = false;
                     }
             }
         }
     }
 }
-
