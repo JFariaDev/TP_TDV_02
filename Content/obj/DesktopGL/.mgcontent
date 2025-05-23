@@ -8,6 +8,7 @@
     <File>C:/Users/marci/source/repos/TP_TDV_02/Content/../../../../Desktop/Free Character Sprites - Fantasy Dreamland/16x16/Char_002.png</File>
     <File>C:/Users/marci/source/repos/TP_TDV_02/Content/../../../../Desktop/tiles jogo/fence.png</File>
     <File>C:/Users/marci/source/repos/TP_TDV_02/Content/dirt.png</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Content/enemy.png</File>
     <File>C:/Users/marci/source/repos/TP_TDV_02/Content/File.spritefont</File>
     <File>C:/Users/marci/source/repos/TP_TDV_02/Content/grass.png</File>
     <File>C:/Users/marci/source/repos/TP_TDV_02/Content/grass2.png</File>
@@ -18,6 +19,7 @@
     <File>Char_002_Idle.png</File>
     <File>Char_002.png</File>
     <File>fence.png</File>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

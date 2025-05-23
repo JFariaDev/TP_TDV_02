@@ -1,5 +1,4 @@
-﻿// Game1.cs
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -7,11 +6,11 @@ namespace Bratalian
 {
     public class Game1 : Game
     {
-        GraphicsDeviceManager _graphics;
-        SpriteBatch _batch;
-        Map _map;
-        Player _player;
-        const float Zoom = 1f;
+        private GraphicsDeviceManager _graphics;
+        private SpriteBatch _spriteBatch;
+
+        private Map _map;
+        private Player _player;
 
         public Game1()
         {
@@ -22,46 +21,55 @@ namespace Bratalian
 
         protected override void LoadContent()
         {
-            _batch = new SpriteBatch(GraphicsDevice);
+            _spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            // cria e carrega o mapa
             _map = new Map(seed: 12345);
             _map.LoadContent(Content);
 
-            _player = new Player(new Vector2(0, 0), 120f);
+            // cria e carrega o player
+            _player = new Player(new Vector2(0, 0), speed: 120f);
             _player.LoadContent(Content);
         }
 
-        protected override void Update(GameTime gt)
+        protected override void Update(GameTime gameTime)
         {
-            if (Keyboard.GetState().IsKeyDown(Keys.Escape)) Exit();
-            _player.Update(gt);
-            base.Update(gt);
+            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+                Exit();
+
+            _player.Update(gameTime);
+            base.Update(gameTime);
         }
 
-        protected override void Draw(GameTime gt)
+        protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
+            // câmara que segue o player
             Viewport vp = GraphicsDevice.Viewport;
-            Vector2 cen = new Vector2(vp.Width, vp.Height) * 0.5f;
+            Vector2 center = new Vector2(vp.Width, vp.Height) * 0.5f;
+
             var view =
-                Matrix.CreateTranslation(-_player.Position.X, -_player.Position.Y, 0) *
-                Matrix.CreateScale(Zoom, Zoom, 1) *
-                Matrix.CreateTranslation(cen.X, cen.Y, 0);
+                Matrix.CreateTranslation(new Vector3(-_player.Position, 0f)) *
+                Matrix.CreateScale(1f, 1f, 1f) *
+                Matrix.CreateTranslation(new Vector3(center, 0f));
 
-            // calcula viewRect em px de mundo
+            // calcula viewRect em coords de mundo
             var inv = Matrix.Invert(view);
-            var tl = Vector2.Transform(Vector2.Zero, inv);
-            var br = Vector2.Transform(new Vector2(vp.Width, vp.Height), inv);
-            Rectangle vr = new((int)tl.X, (int)tl.Y,
-                               (int)(br.X - tl.X), (int)(br.Y - tl.Y));
+            var topL = Vector2.Transform(Vector2.Zero, inv);
+            var botR = Vector2.Transform(new Vector2(vp.Width, vp.Height), inv);
+            var viewRect = new Rectangle(
+                (int)topL.X, (int)topL.Y,
+                (int)(botR.X - topL.X),
+                (int)(botR.Y - topL.Y)
+            );
 
-            _batch.Begin(transformMatrix: view);
-            _map.Draw(_batch, vr);
-            _player.Draw(_batch);
-            _batch.End();
+            _spriteBatch.Begin(transformMatrix: view);
+            _map.Draw(_spriteBatch, viewRect);
+            _player.Draw(_spriteBatch);
+            _spriteBatch.End();
 
-            base.Draw(gt);
+            base.Draw(gameTime);
         }
     }
 }

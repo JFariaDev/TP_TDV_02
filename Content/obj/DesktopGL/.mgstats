@@ -1,10 +1,11 @@
 Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
-"C:/Users/marci/source/repos/TP_TDV_02/Content/../../../../Desktop/Free Character Sprites - Fantasy Dreamland/16x16/Char_002_Idle.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/Char_002_Idle.xnb","TextureProcessor","Texture2DContent",2235,36949,0,1209171
-"C:/Users/marci/source/repos/TP_TDV_02/Content/../../../../Desktop/Free Character Sprites - Fantasy Dreamland/16x16/Char_002.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/Char_002.xnb","TextureProcessor","Texture2DContent",2379,36949,0,0086776
-"C:/Users/marci/source/repos/TP_TDV_02/Content/../../../../Desktop/tiles jogo/fence.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/fence.xnb","TextureProcessor","Texture2DContent",519,9301,0,003464
-"C:/Users/marci/source/repos/TP_TDV_02/Content/dirt.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/dirt.xnb","TextureProcessor","Texture2DContent",342,6229,0,0028117
-"C:/Users/marci/source/repos/TP_TDV_02/Content/File.spritefont","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/File.xnb","FontDescriptionProcessor","SpriteFontContent",2068,21529,0,0688142
-"C:/Users/marci/source/repos/TP_TDV_02/Content/grass.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/grass.xnb","TextureProcessor","Texture2DContent",579,7829,0,0024063
-"C:/Users/marci/source/repos/TP_TDV_02/Content/grass2.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/grass2.xnb","TextureProcessor","Texture2DContent",1464,16469,0,0029606
-"C:/Users/marci/source/repos/TP_TDV_02/Content/path.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/path.xnb","TextureProcessor","Texture2DContent",126,1109,0,010521
-"C:/Users/marci/source/repos/TP_TDV_02/Content/tileset.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/tileset.xnb","TextureProcessor","Texture2DContent",1194,5845,0,0060877
+"C:/Users/marci/source/repos/TP_TDV_02/Content/../../../../Desktop/Free Character Sprites - Fantasy Dreamland/16x16/Char_002_Idle.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/Char_002_Idle.xnb","TextureProcessor","Texture2DContent",2235,36949,0,1033247
+"C:/Users/marci/source/repos/TP_TDV_02/Content/../../../../Desktop/Free Character Sprites - Fantasy Dreamland/16x16/Char_002.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/Char_002.xnb","TextureProcessor","Texture2DContent",2379,36949,0,0096463
+"C:/Users/marci/source/repos/TP_TDV_02/Content/../../../../Desktop/tiles jogo/fence.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/fence.xnb","TextureProcessor","Texture2DContent",519,9301,0,0029216
+"C:/Users/marci/source/repos/TP_TDV_02/Content/dirt.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/dirt.xnb","TextureProcessor","Texture2DContent",342,6229,0,0024118
+"C:/Users/marci/source/repos/TP_TDV_02/Content/enemy.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/enemy.xnb","TextureProcessor","Texture2DContent",1536718,4194389,0,1426224
+"C:/Users/marci/source/repos/TP_TDV_02/Content/File.spritefont","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/File.xnb","FontDescriptionProcessor","SpriteFontContent",2068,21529,0,0680531
+"C:/Users/marci/source/repos/TP_TDV_02/Content/grass.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/grass.xnb","TextureProcessor","Texture2DContent",579,7829,0,0059569
+"C:/Users/marci/source/repos/TP_TDV_02/Content/grass2.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/grass2.xnb","TextureProcessor","Texture2DContent",1464,16469,0,0029244
+"C:/Users/marci/source/repos/TP_TDV_02/Content/path.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/path.xnb","TextureProcessor","Texture2DContent",126,1109,0,0032879
+"C:/Users/marci/source/repos/TP_TDV_02/Content/tileset.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/tileset.xnb","TextureProcessor","Texture2DContent",1194,5845,0,003087

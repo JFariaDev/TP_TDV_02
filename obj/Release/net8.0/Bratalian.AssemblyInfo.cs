@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Bratalian")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1e8d3e73bee5e01f3431eb08cf2ea55ae6a7b95f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b862ca14ccdaf5e0d21c4b03d3cccff330c597d6")]
 [assembly: System.Reflection.AssemblyProductAttribute("Bratalian")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Bratalian")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
