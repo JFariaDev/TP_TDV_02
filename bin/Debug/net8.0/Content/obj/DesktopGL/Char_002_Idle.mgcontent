@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>C:/Users/marci/source/repos/Bratalian2/Content/Char_002_Idle.png</SourceFile>
-  <SourceTime>2024-05-21T21:12:56.3606599+01:00</SourceTime>
-  <DestFile>C:/Users/marci/source/repos/Bratalian2/Content/bin/DesktopGL/Char_002_Idle.xnb</DestFile>
-  <DestTime>2025-05-24T01:46:54.1155681+01:00</DestTime>
+  <SourceFile>C:/Users/marci/source/repos/TP_TDV_02/Content/Char_002_Idle.png</SourceFile>
+  <SourceTime>2025-05-24T16:48:48.1005705+01:00</SourceTime>
+  <DestFile>C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/Char_002_Idle.xnb</DestFile>
+  <DestTime>2025-05-24T21:12:34.3273832+01:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2025-04-05T11:10:54+01:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

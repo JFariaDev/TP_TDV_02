@@ -4,14 +4,32 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
-    <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/borda.png</File>
-    <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/bridge.png</File>
-    <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/bush.png</File>
-    <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/Char_002_Idle.png</File>
-    <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/Char_002.png</File>
-    <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/tileset.png</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Content/borda.png</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Content/bridge.png</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Content/bush.png</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Content/Char_002_Idle.png</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Content/Char_002.png</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Content/enfermaria.png</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Content/ginasioazul.png</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Content/ginasioverde.png</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Content/ginasiovermelho.png</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Content/minitree.png</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Content/minitreeazul.png</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Content/shop.png</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Content/tileset.png</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Content/tree.png</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Content/treeazul.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

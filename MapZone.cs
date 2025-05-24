@@ -1,7 +1,4 @@
 ﻿using System;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 namespace Bratalian2
 {
@@ -14,7 +11,8 @@ namespace Bratalian2
         GroundEdgeBottomLeft, GroundEdgeBottom, GroundEdgeBottomRight,
         BorderTopLeft, BorderTop, BorderTopRight,
         BorderLeft, BorderRight,
-        BorderBottomLeft, BorderBottom, BorderBottomRight
+        BorderBottomLeft, BorderBottom, BorderBottomRight,
+        Bush
     }
 
     public class MapZone
@@ -27,9 +25,6 @@ namespace Bratalian2
             Width = width;
             Height = height;
             Tiles = new TileType[width, height];
-            for (int x = 0; x < width; x++)
-                for (int y = 0; y < height; y++)
-                    Tiles[x, y] = TileType.Grass;
         }
 
         public void GenerateBorders()
@@ -56,17 +51,19 @@ namespace Bratalian2
             {
                 for (int y = 1; y < Height - 1; y++)
                 {
-                    if (Tiles[x, y] == TileType.Grass)
-                    {
-                        if (Tiles[x, y + 1] == TileType.Ground)
-                            Tiles[x, y] = TileType.GroundEdgeTop;
-                        else if (Tiles[x, y - 1] == TileType.Ground)
-                            Tiles[x, y] = TileType.GroundEdgeBottom;
-                        else if (Tiles[x + 1, y] == TileType.Ground)
-                            Tiles[x, y] = TileType.GroundEdgeLeft;
-                        else if (Tiles[x - 1, y] == TileType.Ground)
-                            Tiles[x, y] = TileType.GroundEdgeRight;
-                    }
+                    if (Tiles[x, y] != TileType.Grass) continue;
+                    // cima
+                    if (Tiles[x, y + 1] == TileType.Ground)
+                        Tiles[x, y] = TileType.GroundEdgeTop;
+                    // baixo
+                    else if (Tiles[x, y - 1] == TileType.Ground)
+                        Tiles[x, y] = TileType.GroundEdgeBottom;
+                    // direita
+                    else if (Tiles[x + 1, y] == TileType.Ground)
+                        Tiles[x, y] = TileType.GroundEdgeLeft;
+                    // esquerda
+                    else if (Tiles[x - 1, y] == TileType.Ground)
+                        Tiles[x, y] = TileType.GroundEdgeRight;
                 }
             }
         }

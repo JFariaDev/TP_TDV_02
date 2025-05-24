@@ -1,7 +1,16 @@
 Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
-"C:/Users/marci/source/repos/Bratalian2/Content/borda.png","C:/Users/marci/source/repos/Bratalian2/Content/bin/DesktopGL/borda.xnb","TextureProcessor","Texture2DContent",1563,9301,0,0971899
-"C:/Users/marci/source/repos/Bratalian2/Content/bridge.png","C:/Users/marci/source/repos/Bratalian2/Content/bin/DesktopGL/bridge.xnb","TextureProcessor","Texture2DContent",459,9301,0,0031595
-"C:/Users/marci/source/repos/Bratalian2/Content/bush.png","C:/Users/marci/source/repos/Bratalian2/Content/bin/DesktopGL/bush.xnb","TextureProcessor","Texture2DContent",369,1109,0,0027246
-"C:/Users/marci/source/repos/Bratalian2/Content/Char_002_Idle.png","C:/Users/marci/source/repos/Bratalian2/Content/bin/DesktopGL/Char_002_Idle.xnb","TextureProcessor","Texture2DContent",2235,36949,0,0076615
-"C:/Users/marci/source/repos/Bratalian2/Content/Char_002.png","C:/Users/marci/source/repos/Bratalian2/Content/bin/DesktopGL/Char_002.xnb","TextureProcessor","Texture2DContent",2379,36949,0,0040613
-"C:/Users/marci/source/repos/Bratalian2/Content/tileset.png","C:/Users/marci/source/repos/Bratalian2/Content/bin/DesktopGL/tileset.xnb","TextureProcessor","Texture2DContent",1968,12373,0,0022055
+"C:/Users/marci/source/repos/TP_TDV_02/Content/borda.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/borda.xnb","TextureProcessor","Texture2DContent",1563,9301,0,1424322
+"C:/Users/marci/source/repos/TP_TDV_02/Content/bridge.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/bridge.xnb","TextureProcessor","Texture2DContent",459,9301,0,0030692
+"C:/Users/marci/source/repos/TP_TDV_02/Content/bush.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/bush.xnb","TextureProcessor","Texture2DContent",369,1109,0,0021981
+"C:/Users/marci/source/repos/TP_TDV_02/Content/Char_002_Idle.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/Char_002_Idle.xnb","TextureProcessor","Texture2DContent",2235,36949,0,0058042
+"C:/Users/marci/source/repos/TP_TDV_02/Content/Char_002.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/Char_002.xnb","TextureProcessor","Texture2DContent",2379,36949,0,0027034
+"C:/Users/marci/source/repos/TP_TDV_02/Content/enfermaria.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/enfermaria.xnb","TextureProcessor","Texture2DContent",2454,36949,0,0036223
+"C:/Users/marci/source/repos/TP_TDV_02/Content/ginasioazul.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/ginasioazul.xnb","TextureProcessor","Texture2DContent",4968,49365,0,0093115
+"C:/Users/marci/source/repos/TP_TDV_02/Content/ginasioverde.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/ginasioverde.xnb","TextureProcessor","Texture2DContent",3546,50261,0,0090647
+"C:/Users/marci/source/repos/TP_TDV_02/Content/ginasiovermelho.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/ginasiovermelho.xnb","TextureProcessor","Texture2DContent",3537,48485,0,0097654
+"C:/Users/marci/source/repos/TP_TDV_02/Content/minitree.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/minitree.xnb","TextureProcessor","Texture2DContent",576,2133,0,0089491
+"C:/Users/marci/source/repos/TP_TDV_02/Content/minitreeazul.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/minitreeazul.xnb","TextureProcessor","Texture2DContent",621,2133,0,0077736
+"C:/Users/marci/source/repos/TP_TDV_02/Content/shop.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/shop.xnb","TextureProcessor","Texture2DContent",1959,25685,0,004924
+"C:/Users/marci/source/repos/TP_TDV_02/Content/tileset.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/tileset.xnb","TextureProcessor","Texture2DContent",1968,12373,0,0022442
+"C:/Users/marci/source/repos/TP_TDV_02/Content/tree.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/tree.xnb","TextureProcessor","Texture2DContent",1035,6229,0,0079667
+"C:/Users/marci/source/repos/TP_TDV_02/Content/treeazul.png","C:/Users/marci/source/repos/TP_TDV_02/Content/bin/DesktopGL/treeazul.xnb","TextureProcessor","Texture2DContent",1125,6229,0,007558
