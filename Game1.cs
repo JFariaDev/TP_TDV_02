@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
+using System.Collections.Generic;
 
 namespace Bratalian2
 {
@@ -25,6 +27,12 @@ namespace Bratalian2
 
         // Câmera 2D
         private Camera2D camera;
+
+        //Bratalians
+        private List<Bratalian> bratalians = new List<Bratalian>();
+        private SpriteFont font;
+        private bool mostrarTextoDeEncontro = false;
+        private string textoDoBratalian = "";
 
         public Game1()
         {
@@ -70,6 +78,33 @@ namespace Bratalian2
                        + interiorMargin
                        + (zoneH - 2 * interiorMargin) / 2;
             player.Position = new Vector2(startX * TileSize, startY * TileSize);
+
+            string[] names = new string[] {
+                "Bombardini Guzzini", "Bombardino Crocodilo", "Boneca Ambalabu", "Brr Brr Patapim",
+                "Cappuccino Assassino", "Frigo Cammello", "La Vaca Saturno Saturnita", "Lirili Larila",
+                "Tralalero Tralala", "Trippi Troppi Troppa Trippa", "Trulimero Trulicina", "Tung Tung Tung Sahur"
+            };
+
+            Texture2D[] textures = new Texture2D[names.Length];
+            for (int i = 0; i < names.Length; i++)
+                textures[i] = Content.Load<Texture2D>($"{names[i].ToLower().Replace(" ", "_")}");
+
+            Random rnd = new Random();
+            for (int i = 0; i < textures.Length; i++)
+            {
+                Vector2 pos;
+                int x, y;
+                do
+                {
+                    x = rnd.Next(exteriorMargin + interiorMargin + 1, bigZone.Width - exteriorMargin - interiorMargin - 1);
+                    y = rnd.Next(exteriorMargin + interiorMargin + 1, bigZone.Height - exteriorMargin - interiorMargin - 1);
+
+                    pos = new Vector2(x * TileSize, y * TileSize);
+                } while (bigZone.Tiles[x, y] != TileType.Bush);
+
+
+                bratalians.Add(new Bratalian(textures[i], pos, names[i], new Vector2(0.2f, 0.2f)));
+            }
         }
 
         protected override void Update(GameTime gameTime)
@@ -87,7 +122,6 @@ namespace Bratalian2
         {
             GraphicsDevice.Clear(Color.Black);
 
-            // Obtém a matriz de visão que segue o player
             var view = camera.GetViewMatrix(player.Position);
 
             spriteBatch.Begin(
@@ -97,6 +131,18 @@ namespace Bratalian2
             DrawBackground();
             DrawMapZone(bigZone);
             player.Draw(spriteBatch);
+
+            foreach (var bratalian in bratalians)
+            {
+                Rectangle playerRect = new Rectangle((int)player.Position.X, (int)player.Position.Y, player.width, player.height);
+                Rectangle bratalianRect = new Rectangle((int)bratalian.Position.X, (int)bratalian.Position.Y, bratalian.width, bratalian.height);
+
+                if (playerRect.Intersects(bratalianRect))
+                {
+                    StartBattle(bratalian);
+                    break;
+                }
+            }
 
             spriteBatch.End();
             base.Draw(gameTime);
@@ -222,6 +268,13 @@ namespace Bratalian2
                 default:
                     return false;
             }
+        }
+
+        private void StartBattle(Bratalian bratalian)
+        {
+            mostrarTextoDeEncontro = true;
+            textoDoBratalian = $"Você encontrou {bratalian.Name}! Prepare-se para a batalha!";
+            // Aqui você pode alternar um flag para mudar o GameState e desenhar tela de batalha.
         }
     }
 }

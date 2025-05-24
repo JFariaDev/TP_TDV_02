@@ -13,6 +13,10 @@ namespace Bratalian2
         private float animTimer;
         private int dir;       // 0 = down, 1 = left, 2 = right, 3 = up
         private bool moving;
+        public int width;
+        public int height;
+
+
 
         public Player(Texture2D idle, Texture2D walk)
         {
@@ -23,6 +27,8 @@ namespace Bratalian2
             animTimer = 0f;
             dir = 0;
             moving = false;
+            width = 24;
+            height = 24;
         }
 
         public void Update(GameTime gameTime, KeyboardState state, MapZone zone)
@@ -80,5 +86,9 @@ namespace Bratalian2
             // Desenha idle ou walk conforme o estado
             sb.Draw(moving ? walkTex : idleTex, drawPos, src, Color.White);
         }
+
+        
+
     }
+
 }
