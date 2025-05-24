@@ -1,105 +1,86 @@
-﻿// Player.cs
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Bratalian
+namespace Bratalian2
 {
     public class Player
     {
         public Vector2 Position;
-        private readonly float _speed;
+        private Texture2D idleTex, walkTex;
+        private float animTimer;
+        private int animFrame;
+        private int animDir; // 0-down, 1-left, 2-right, 3-up
+        private bool isWalking;
 
-        private Texture2D _walkTex, _idleTex;
-        private int _direction;        // 0=down,1=left,2=right,3=up
-        private int _frame, _frameCount = 4;
-        private float _timer, _frameDuration = 0.15f;
-
-        public Player(Vector2 spawn, float speed)
+        public Player(Texture2D idle, Texture2D walk)
         {
-            Position = spawn;
-            _speed = speed;
+            idleTex = idle;
+            walkTex = walk;
+            Position = Vector2.Zero;
+            animTimer = 0f;
+            animFrame = 0;
+            animDir = 0;
+            isWalking = false;
         }
 
-        public void LoadContent(ContentManager content)
+        public void Update(GameTime gameTime, KeyboardState ks)
         {
-            _walkTex = content.Load<Texture2D>("Char_002");
-            _idleTex = content.Load<Texture2D>("Char_002_Idle");
-        }
+            Vector2 move = Vector2.Zero;
 
-        public void Update(GameTime gameTime)
-        {
-            var ks = Keyboard.GetState();
-            Vector2 mov = Vector2.Zero;
-
-            // apenas movimento horizontal ou vertical, sem obliquo
-            if (ks.IsKeyDown(Keys.A))
+            // Prioridade: Cima > Baixo > Esquerda > Direita
+            if (ks.IsKeyDown(Keys.W) || ks.IsKeyDown(Keys.Up))
             {
-                mov.X = -1;
-                _direction = 1;  // left
+                move.Y -= 1;
+                animDir = 3;
             }
-            else if (ks.IsKeyDown(Keys.D))
+            else if (ks.IsKeyDown(Keys.S) || ks.IsKeyDown(Keys.Down))
             {
-                mov.X = 1;
-                _direction = 2;  // right
+                move.Y += 1;
+                animDir = 0;
             }
-            else if (ks.IsKeyDown(Keys.W))
+            else if (ks.IsKeyDown(Keys.A) || ks.IsKeyDown(Keys.Left))
             {
-                mov.Y = -1;
-                _direction = 3;  // up
+                move.X -= 1;
+                animDir = 1;
             }
-            else if (ks.IsKeyDown(Keys.S))
+            else if (ks.IsKeyDown(Keys.D) || ks.IsKeyDown(Keys.Right))
             {
-                mov.Y = 1;
-                _direction = 0;  // down
+                move.X += 1;
+                animDir = 2;
             }
 
-            if (mov != Vector2.Zero)
+            if (move.LengthSquared() > 0)
             {
-                // normaliza para manter velocidade constante
-                mov.Normalize();
-                Position += mov * _speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-                // anima walking
-                _timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
-                if (_timer > _frameDuration)
-                {
-                    _frame = (_frame + 1) % _frameCount;
-                    _timer = 0f;
-                }
+                Position += move * 2.5f; // Velocidade
+                isWalking = true;
             }
             else
             {
-                // idle
-                _frame = 0;
-                _timer = 0f;
+                isWalking = false;
+            }
+
+            // Animação
+            animTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (animTimer > 0.18f)
+            {
+                animTimer = 0f;
+                animFrame = (animFrame + 1) % 4;
             }
         }
 
-        public void Draw(SpriteBatch sb)
+        public void Draw(SpriteBatch spriteBatch)
         {
-            // escolhe sheet
-            bool walking = _timer > 0f;
-            var tex = walking ? _walkTex : _idleTex;
+            Texture2D tex = isWalking ? walkTex : idleTex;
+            int frame = animFrame;
+            int dir = animDir;
+            Rectangle src = new Rectangle(frame * 24, dir * 24, 24, 24);
 
-            int tileSize = 24;
-            var src = new Rectangle(
-                _frame * tileSize,
-                _direction * tileSize,
-                tileSize, tileSize
-            );
-
-            sb.Draw(
+            spriteBatch.Draw(
                 tex,
-                Position,
+                Position - new Vector2(12, 20),
                 src,
-                Color.White,
-                0f,
-                new Vector2(tileSize / 2, tileSize / 2),
-                1f,
-                SpriteEffects.None,
-                0f
+                Color.White
             );
         }
     }
