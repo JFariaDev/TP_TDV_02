@@ -1,1 +1,7 @@
 Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
+"C:/Users/marci/Source/Repos/TP_TDV_02/Content/borda.png","C:/Users/marci/Source/Repos/TP_TDV_02/Content/bin/DesktopGL/Content/borda.xnb","TextureProcessor","Texture2DContent",1563,9301,0,0938419
+"C:/Users/marci/Source/Repos/TP_TDV_02/Content/bridge.png","C:/Users/marci/Source/Repos/TP_TDV_02/Content/bin/DesktopGL/Content/bridge.xnb","TextureProcessor","Texture2DContent",459,9301,0,0032507
+"C:/Users/marci/Source/Repos/TP_TDV_02/Content/bush.png","C:/Users/marci/Source/Repos/TP_TDV_02/Content/bin/DesktopGL/Content/bush.xnb","TextureProcessor","Texture2DContent",369,1109,0,0025494
+"C:/Users/marci/Source/Repos/TP_TDV_02/Content/Char_002_Idle.png","C:/Users/marci/Source/Repos/TP_TDV_02/Content/bin/DesktopGL/Content/Char_002_Idle.xnb","TextureProcessor","Texture2DContent",2235,36949,0,0054667
+"C:/Users/marci/Source/Repos/TP_TDV_02/Content/Char_002.png","C:/Users/marci/Source/Repos/TP_TDV_02/Content/bin/DesktopGL/Content/Char_002.xnb","TextureProcessor","Texture2DContent",2379,36949,0,0028595
+"C:/Users/marci/Source/Repos/TP_TDV_02/Content/tileset.png","C:/Users/marci/Source/Repos/TP_TDV_02/Content/bin/DesktopGL/Content/tileset.xnb","TextureProcessor","Texture2DContent",1968,12373,0,0027082

@@ -8,80 +8,99 @@ namespace Bratalian2
     {
         public Vector2 Position;
         private Texture2D idleTex, walkTex;
+
+        private int frame;
         private float animTimer;
-        private int animFrame;
-        private int animDir; // 0-down, 1-left, 2-right, 3-up
-        private bool isWalking;
+        private int dir; // 0: Down, 1: Left, 2: Right, 3: Up
+        private bool moving;
 
         public Player(Texture2D idle, Texture2D walk)
         {
             idleTex = idle;
             walkTex = walk;
             Position = Vector2.Zero;
+            frame = 0;
             animTimer = 0f;
-            animFrame = 0;
-            animDir = 0;
-            isWalking = false;
+            dir = 0;
+            moving = false;
         }
 
-        public void Update(GameTime gameTime, KeyboardState ks)
+        public void Update(GameTime gameTime, KeyboardState state, MapZone zone)
         {
+            float speed = 2f;
             Vector2 move = Vector2.Zero;
+            int prevDir = dir;
+            moving = false;
 
-            // Prioridade: Cima > Baixo > Esquerda > Direita
-            if (ks.IsKeyDown(Keys.W) || ks.IsKeyDown(Keys.Up))
+            if (state.IsKeyDown(Keys.Left))
             {
-                move.Y -= 1;
-                animDir = 3;
+                move.X -= speed;
+                dir = 1;
+                moving = true;
             }
-            else if (ks.IsKeyDown(Keys.S) || ks.IsKeyDown(Keys.Down))
+            else if (state.IsKeyDown(Keys.Right))
             {
-                move.Y += 1;
-                animDir = 0;
+                move.X += speed;
+                dir = 2;
+                moving = true;
             }
-            else if (ks.IsKeyDown(Keys.A) || ks.IsKeyDown(Keys.Left))
+            else if (state.IsKeyDown(Keys.Up))
             {
-                move.X -= 1;
-                animDir = 1;
+                move.Y -= speed;
+                dir = 3;
+                moving = true;
             }
-            else if (ks.IsKeyDown(Keys.D) || ks.IsKeyDown(Keys.Right))
+            else if (state.IsKeyDown(Keys.Down))
             {
-                move.X += 1;
-                animDir = 2;
-            }
-
-            if (move.LengthSquared() > 0)
-            {
-                Position += move * 2.5f; // Velocidade
-                isWalking = true;
-            }
-            else
-            {
-                isWalking = false;
+                move.Y += speed;
+                dir = 0;
+                moving = true;
             }
 
-            // Animação
+            // Eixo a eixo: evita atravessar cantos diagonais
+            Vector2 newPos = Position;
+
+            // Primeiro eixo X
+            if (move.X != 0)
+            {
+                Vector2 tryPos = new Vector2(Position.X + move.X, Position.Y);
+                int tx = (int)((tryPos.X + 12) / 16); // centraliza para hitbox, ajusta se necessário
+                int ty = (int)((tryPos.Y + 12) / 16);
+                if (!Game1.IsBlocked(zone, tx, ty))
+                    newPos.X += move.X;
+            }
+            // Depois eixo Y
+            if (move.Y != 0)
+            {
+                Vector2 tryPos = new Vector2(newPos.X, Position.Y + move.Y);
+                int tx = (int)((tryPos.X + 12) / 16);
+                int ty = (int)((tryPos.Y + 12) / 16);
+                if (!Game1.IsBlocked(zone, tx, ty))
+                    newPos.Y += move.Y;
+            }
+
+            moving = (newPos != Position);
+            Position = newPos;
+
+            // Animação idle e walk (idle também é animada!)
             animTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (animTimer > 0.18f)
+            if (animTimer >= 0.18f) // tempo por frame (ajusta se quiseres)
             {
+                frame = (frame + 1) % 4;
                 animTimer = 0f;
-                animFrame = (animFrame + 1) % 4;
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public void Draw(SpriteBatch sb)
         {
-            Texture2D tex = isWalking ? walkTex : idleTex;
-            int frame = animFrame;
-            int dir = animDir;
-            Rectangle src = new Rectangle(frame * 24, dir * 24, 24, 24);
+            int frameW = 24, frameH = 24;
+            Rectangle srcRect = new Rectangle(frame * frameW, dir * frameH, frameW, frameH);
+            Vector2 drawPos = Position + new Vector2(-4, -8); // centraliza sprite no tile
 
-            spriteBatch.Draw(
-                tex,
-                Position - new Vector2(12, 20),
-                src,
-                Color.White
-            );
+            if (moving)
+                sb.Draw(walkTex, drawPos, srcRect, Color.White);
+            else
+                sb.Draw(idleTex, drawPos, srcRect, Color.White);
         }
     }
 }

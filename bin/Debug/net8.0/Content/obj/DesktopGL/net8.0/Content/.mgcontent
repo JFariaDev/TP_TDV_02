@@ -4,12 +4,12 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
-    <File>C:/Users/marci/source/repos/Bratalian2/Content/borda.png</File>
-    <File>C:/Users/marci/source/repos/Bratalian2/Content/bridge.png</File>
-    <File>C:/Users/marci/source/repos/Bratalian2/Content/bush.png</File>
-    <File>C:/Users/marci/source/repos/Bratalian2/Content/Char_002_Idle.png</File>
-    <File>C:/Users/marci/source/repos/Bratalian2/Content/Char_002.png</File>
-    <File>C:/Users/marci/source/repos/Bratalian2/Content/tileset.png</File>
+    <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/borda.png</File>
+    <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/bridge.png</File>
+    <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/bush.png</File>
+    <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/Char_002_Idle.png</File>
+    <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/Char_002.png</File>
+    <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/tileset.png</File>
   </SourceFiles>
   <DestFiles>
     <File xsi:nil="true" />

@@ -343,11 +343,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\marci\\source\\repos\\Bratalian2\\Bratalian2.csproj",
+      "projectUniqueName": "C:\\Users\\marci\\Source\\Repos\\TP_TDV_02\\Bratalian2.csproj",
       "projectName": "Bratalian2",
-      "projectPath": "C:\\Users\\marci\\source\\repos\\Bratalian2\\Bratalian2.csproj",
+      "projectPath": "C:\\Users\\marci\\Source\\Repos\\TP_TDV_02\\Bratalian2.csproj",
       "packagesPath": "C:\\Users\\marci\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\marci\\source\\repos\\Bratalian2\\obj\\",
+      "outputPath": "C:\\Users\\marci\\Source\\Repos\\TP_TDV_02\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

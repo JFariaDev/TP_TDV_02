@@ -16,7 +16,16 @@ namespace Bratalian2
         private Player player;
         private MapZone bigZone;
 
-        private int gap, zoneW, zoneH, pathW, nZones, width, height;
+        // Parâmetros do mapa (AJUSTADOS!)
+        private int exteriorMargin = 12;
+        private int interiorMargin = 2;
+        private int zoneW = 38;    // maior largura
+        private int zoneH = 22;    // maior altura
+        private int pathW = 3;
+        private int gap = 30;      // mais afastadas horizontalmente
+        private int vgap = 24;     // mais afastadas verticalmente
+
+        private int width, height;
         private Matrix camMat;
         private Vector2 camPos;
 
@@ -26,15 +35,10 @@ namespace Bratalian2
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
-            // ---- Parâmetros configuráveis ----
-            zoneW = 28;   // largura da zona
-            zoneH = 20;   // altura da zona
-            pathW = 3;    // largura do caminho
-            gap = 12;     // separação entre zonas
-            nZones = 3;   // número de zonas
+            // Calcula dimensões do mapa
+            width = zoneW * 2 + gap + 2 * (exteriorMargin + 1);
+            height = zoneH * 2 + vgap + 2 * (exteriorMargin + 1);
 
-            width = nZones * zoneW + (nZones - 1) * gap + gap;
-            height = zoneH + 2 * gap;
             bigZone = new MapZone(width, height);
 
             // Preenche tudo com relva
@@ -42,101 +46,61 @@ namespace Bratalian2
                 for (int y = 0; y < height; y++)
                     bigZone.Tiles[x, y] = TileType.Grass;
 
-            int currentX = gap;
-
-            for (int i = 0; i < nZones; i++)
+            // Borda exterior
+            for (int x = 0; x < width; x++)
             {
-                bool hasLeftPath = i > 0;
-                bool hasRightPath = i < nZones - 1;
-
-                // Desenha a zona toda a chão (Ground)
-                for (int x = currentX; x < currentX + zoneW; x++)
-                    for (int y = gap; y < gap + zoneH; y++)
-                        bigZone.Tiles[x, y] = TileType.Ground;
-
-                // Aplica bordas à zona (paredes de pedra à volta) - com proteção!
-                for (int x = currentX - 1; x <= currentX + zoneW; x++)
-                {
-                    // Topo e base
-                    if (x >= 0 && x < bigZone.Width)
-                    {
-                        if (gap - 1 >= 0)
-                            bigZone.Tiles[x, gap - 1] = TileType.BorderTop;
-                        if (gap + zoneH < bigZone.Height)
-                            bigZone.Tiles[x, gap + zoneH] = TileType.BorderBottom;
-                    }
-                }
-                for (int y = gap - 1; y <= gap + zoneH; y++)
-                {
-                    if (y >= 0 && y < bigZone.Height)
-                    {
-                        if (currentX - 1 >= 0)
-                            bigZone.Tiles[currentX - 1, y] = TileType.BorderLeft;
-                        if (currentX + zoneW < bigZone.Width)
-                            bigZone.Tiles[currentX + zoneW, y] = TileType.BorderRight;
-                    }
-                }
-                // CANTOS
-                if (currentX - 1 >= 0 && gap - 1 >= 0)
-                    bigZone.Tiles[currentX - 1, gap - 1] = TileType.BorderTopLeft;
-                if (currentX + zoneW < bigZone.Width && gap - 1 >= 0)
-                    bigZone.Tiles[currentX + zoneW, gap - 1] = TileType.BorderTopRight;
-                if (currentX - 1 >= 0 && gap + zoneH < bigZone.Height)
-                    bigZone.Tiles[currentX - 1, gap + zoneH] = TileType.BorderBottomLeft;
-                if (currentX + zoneW < bigZone.Width && gap + zoneH < bigZone.Height)
-                    bigZone.Tiles[currentX + zoneW, gap + zoneH] = TileType.BorderBottomRight;
-
-                // Faz o corte da borda nas passagens (caminho horizontal)
-                if (hasRightPath)
-                {
-                    int zoneCenterY = gap + zoneH / 2;
-                    int pathStartY = zoneCenterY - pathW / 2;
-                    int cutStartY = pathStartY - 2;
-                    int cutEndY = pathStartY + pathW + 2;
-
-                    for (int y = cutStartY; y < cutEndY; y++)
-                    {
-                        if (y >= 0 && y < bigZone.Height && currentX + zoneW < bigZone.Width)
-                        {
-                            // Corta a borda direita
-                            bigZone.Tiles[currentX + zoneW, y] = TileType.Ground;
-                        }
-                    }
-
-                    // Cria o caminho horizontal (chão)
-                    int caminhoXini = currentX + zoneW;
-                    int caminhoXfim = caminhoXini + gap;
-                    for (int x = caminhoXini; x < caminhoXfim; x++)
-                        for (int y = pathStartY; y < pathStartY + pathW; y++)
-                            if (x >= 0 && x < bigZone.Width && y >= 0 && y < bigZone.Height)
-                                bigZone.Tiles[x, y] = TileType.Ground;
-                }
-
-                if (hasLeftPath)
-                {
-                    int zoneCenterY = gap + zoneH / 2;
-                    int pathStartY = zoneCenterY - pathW / 2;
-                    int cutStartY = pathStartY - 2;
-                    int cutEndY = pathStartY + pathW + 2;
-
-                    for (int y = cutStartY; y < cutEndY; y++)
-                    {
-                        if (y >= 0 && y < bigZone.Height && currentX - 1 >= 0)
-                        {
-                            // Corta a borda esquerda
-                            bigZone.Tiles[currentX - 1, y] = TileType.Ground;
-                        }
-                    }
-                }
-
-                currentX += zoneW + gap;
+                bigZone.Tiles[x, 0] = TileType.BorderTop;
+                bigZone.Tiles[x, height - 1] = TileType.BorderBottom;
             }
+            for (int y = 0; y < height; y++)
+            {
+                bigZone.Tiles[0, y] = TileType.BorderLeft;
+                bigZone.Tiles[width - 1, y] = TileType.BorderRight;
+            }
+            bigZone.Tiles[0, 0] = TileType.BorderTopLeft;
+            bigZone.Tiles[width - 1, 0] = TileType.BorderTopRight;
+            bigZone.Tiles[0, height - 1] = TileType.BorderBottomLeft;
+            bigZone.Tiles[width - 1, height - 1] = TileType.BorderBottomRight;
+
+            // ---- Zonas ----
+            // 2 em cima
+            int zone1_X = exteriorMargin + 1;
+            int zone2_X = zone1_X + zoneW + gap;
+            int zone1_Y = exteriorMargin + 1;
+            // 2 em baixo
+            int zone3_Y = zone1_Y + zoneH + vgap;
+            int zone3_X = zone1_X;
+            int zone4_X = zone2_X;
+
+            // Preencher as 4 zonas com chão e borda
+            FillRect(bigZone, zone1_X + interiorMargin, zone1_Y + interiorMargin, zoneW - 2 * interiorMargin, zoneH - 2 * interiorMargin, TileType.Ground);
+            FillRect(bigZone, zone2_X + interiorMargin, zone1_Y + interiorMargin, zoneW - 2 * interiorMargin, zoneH - 2 * interiorMargin, TileType.Ground);
+            FillRect(bigZone, zone3_X + interiorMargin, zone3_Y + interiorMargin, zoneW - 2 * interiorMargin, zoneH - 2 * interiorMargin, TileType.Ground);
+            FillRect(bigZone, zone4_X + interiorMargin, zone3_Y + interiorMargin, zoneW - 2 * interiorMargin, zoneH - 2 * interiorMargin, TileType.Ground);
+
+            DrawZoneBorder(bigZone, zone1_X, zone1_Y, zoneW, zoneH, interiorMargin, pathW, "down");
+            DrawZoneBorder(bigZone, zone2_X, zone1_Y, zoneW, zoneH, interiorMargin, pathW, "down");
+            DrawZoneBorder(bigZone, zone3_X, zone3_Y, zoneW, zoneH, interiorMargin, pathW, "up");
+            DrawZoneBorder(bigZone, zone4_X, zone3_Y, zoneW, zoneH, interiorMargin, pathW, "up");
+
+            // Caminhos verticais entre zonas de cima e baixo
+            int passage1X = zone1_X + zoneW / 2;
+            int passage2X = zone2_X + zoneW / 2;
+            int passageYStart = zone1_Y + zoneH - interiorMargin;
+            int passageYEnd = zone3_Y + interiorMargin;
+
+            for (int y = passageYStart; y < passageYEnd; y++)
+                for (int px = -pathW / 2; px <= pathW / 2; px++)
+                {
+                    SetTileSafe(bigZone, passage1X + px, y, TileType.Ground);
+                    SetTileSafe(bigZone, passage2X + px, y, TileType.Ground);
+                }
 
             bigZone.GenerateBorders();
             bigZone.GenerateGroundEdges();
 
-            graphics.PreferredBackBufferWidth = 1280;
-            graphics.PreferredBackBufferHeight = 900;
+            graphics.PreferredBackBufferWidth = 1920;
+            graphics.PreferredBackBufferHeight = 1080;
             graphics.ApplyChanges();
         }
 
@@ -153,9 +117,9 @@ namespace Bratalian2
             player = new Player(idleTex, walkTex);
 
             // Spawn centro da primeira zona
-            int centerX = (gap + zoneW / 2) * TileSize;
-            int centerY = (gap + zoneH / 2) * TileSize;
-            player.Position = new Vector2(centerX, centerY);
+            int startX = (exteriorMargin + 1) + interiorMargin + (zoneW - 2 * interiorMargin) / 2;
+            int startY = (exteriorMargin + 1) + interiorMargin + (zoneH - 2 * interiorMargin) / 2;
+            player.Position = new Vector2(startX * TileSize, startY * TileSize);
         }
 
         protected override void Update(GameTime gameTime)
@@ -163,7 +127,7 @@ namespace Bratalian2
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            player.Update(gameTime, Keyboard.GetState());
+            player.Update(gameTime, Keyboard.GetState(), bigZone);
 
             var center = new Vector2(
                 graphics.PreferredBackBufferWidth / 2f,
@@ -173,6 +137,21 @@ namespace Bratalian2
             camMat = Matrix.CreateTranslation(-camPos.X, -camPos.Y, 0f);
 
             base.Update(gameTime);
+        }
+
+        public static bool IsBlocked(MapZone zone, int x, int y)
+        {
+            if (x < 0 || x >= zone.Width || y < 0 || y >= zone.Height)
+                return true;
+            TileType t = zone.Tiles[x, y];
+            return t == TileType.BorderTop
+                || t == TileType.BorderBottom
+                || t == TileType.BorderLeft
+                || t == TileType.BorderRight
+                || t == TileType.BorderTopLeft
+                || t == TileType.BorderTopRight
+                || t == TileType.BorderBottomLeft
+                || t == TileType.BorderBottomRight;
         }
 
         private void DrawMapZone(MapZone zone)
@@ -243,6 +222,7 @@ namespace Bratalian2
                 transformMatrix: camMat
             );
 
+            // Fundo procedural (relva + arbustos)
             int vw = graphics.PreferredBackBufferWidth,
                 vh = graphics.PreferredBackBufferHeight;
             int sx = (int)Math.Floor(camPos.X / TileSize) - 1,
@@ -264,8 +244,54 @@ namespace Bratalian2
 
             DrawMapZone(bigZone);
             player.Draw(spriteBatch);
+
             spriteBatch.End();
             base.Draw(gameTime);
+        }
+
+        private void FillRect(MapZone zone, int x, int y, int w, int h, TileType type)
+        {
+            for (int xx = x; xx < x + w; xx++)
+                for (int yy = y; yy < y + h; yy++)
+                    SetTileSafe(zone, xx, yy, type);
+        }
+
+        // Corrigida para não falhar as bordas laterais nunca
+        private void DrawZoneBorder(MapZone zone, int x, int y, int w, int h, int margin, int pathW, string passageDir)
+        {
+            int passageCenter = x + w / 2;
+            // Top border
+            for (int xx = x; xx < x + w; xx++)
+            {
+                if (passageDir == "down" && Math.Abs(xx - passageCenter) <= pathW / 2)
+                    continue;
+                SetTileSafe(zone, xx, y, TileType.BorderTop);
+            }
+            // Bottom border
+            for (int xx = x; xx < x + w; xx++)
+            {
+                if (passageDir == "up" && Math.Abs(xx - passageCenter) <= pathW / 2)
+                    continue;
+                SetTileSafe(zone, xx, y + h - 1, TileType.BorderBottom);
+            }
+            // Left border (sempre desenha)
+            for (int yy = y; yy < y + h; yy++)
+                SetTileSafe(zone, x, yy, TileType.BorderLeft);
+            // Right border (sempre desenha)
+            for (int yy = y; yy < y + h; yy++)
+                SetTileSafe(zone, x + w - 1, yy, TileType.BorderRight);
+
+            // Cantos
+            SetTileSafe(zone, x, y, TileType.BorderTopLeft);
+            SetTileSafe(zone, x + w - 1, y, TileType.BorderTopRight);
+            SetTileSafe(zone, x, y + h - 1, TileType.BorderBottomLeft);
+            SetTileSafe(zone, x + w - 1, y + h - 1, TileType.BorderBottomRight);
+        }
+
+        private void SetTileSafe(MapZone zone, int x, int y, TileType type)
+        {
+            if (x >= 0 && x < zone.Width && y >= 0 && y < zone.Height)
+                zone.Tiles[x, y] = type;
         }
     }
 }
