@@ -1,1 +1,42 @@
+# Visual Studio
 .vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build folders
+[Bb]in/
+[Oo]bj/
+
+# MonoGame Pipeline
+# Ignora ficheiros de configuração de utilizador e caches
+*.mgcb.user
+*.mgcb.Cache
+
+# Content Pipeline output
+/Content/bin/
+/Content/obj/
+
+# NuGet
+*.nupkg
+.packages/
+project.lock.json
+
+# Rider
+.idea/
+
+# Logs e caches
+*.log
+*.tmp
+*.cache
+
+# System files
+.DS_Store
+Thumbs.db
+
+# DLLs e executáveis gerados (opcional, se não fizer deploy via NuGet)
+/*.dll
+/*.exe
+
