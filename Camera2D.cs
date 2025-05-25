@@ -10,7 +10,7 @@ namespace Bratalian2
         /// <summary>
         /// Quanto a câmera está “zoominada”. Ajusta para 1.3f ou 1.5f
         /// </summary>
-        public float Zoom { get; set; } = 2.5f;
+        public float Zoom { get; set; } = 2f;
 
         /// <summary>
         /// Rotação da câmera (normalmente 0)
