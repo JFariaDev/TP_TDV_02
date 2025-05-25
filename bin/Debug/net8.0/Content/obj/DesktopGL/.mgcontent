@@ -16,6 +16,7 @@
     <File>C:/Users/marci/source/repos/TP_TDV_02/Content/cappuccino_assassino.png</File>
     <File>C:/Users/marci/source/repos/TP_TDV_02/Content/Char_002_Idle.png</File>
     <File>C:/Users/marci/source/repos/TP_TDV_02/Content/Char_002.png</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Content/E.png</File>
     <File>C:/Users/marci/source/repos/TP_TDV_02/Content/enfermaria.png</File>
     <File>C:/Users/marci/source/repos/TP_TDV_02/Content/frigo_cammello.png</File>
     <File>C:/Users/marci/source/repos/TP_TDV_02/Content/ginasioazul.png</File>
@@ -35,6 +36,7 @@
     <File>C:/Users/marci/source/repos/TP_TDV_02/Content/tung_tung_tung_sahur.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

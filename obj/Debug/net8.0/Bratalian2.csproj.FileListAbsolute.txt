@@ -495,3 +495,9 @@ C:\Users\marci\Source\Repos\TP_TDV_02\bin\Debug\net8.0\Content\obj\DesktopGL\net
 C:\Users\marci\Source\Repos\TP_TDV_02\bin\Debug\net8.0\Content\obj\DesktopGL\net8.0\Content\trippi_troppi_troppa_trippa.mgcontent
 C:\Users\marci\Source\Repos\TP_TDV_02\bin\Debug\net8.0\Content\obj\DesktopGL\net8.0\Content\trulimero_trulicina.mgcontent
 C:\Users\marci\Source\Repos\TP_TDV_02\bin\Debug\net8.0\Content\obj\DesktopGL\net8.0\Content\tung_tung_tung_sahur.mgcontent
+C:\Users\marci\Source\Repos\TP_TDV_02\bin\Debug\net8.0\Content\E.xnb
+C:\Users\marci\Source\Repos\TP_TDV_02\bin\Debug\net8.0\Content\bin\DesktopGL\E.xnb
+C:\Users\marci\Source\Repos\TP_TDV_02\bin\Debug\net8.0\Content\E.png
+C:\Users\marci\Source\Repos\TP_TDV_02\bin\Debug\net8.0\Content\obj\DesktopGL\E.mgcontent
+C:\Users\marci\Source\Repos\TP_TDV_02\bin\Debug\net8.0\Content\bin\DesktopGL\Content\E.xnb
+C:\Users\marci\Source\Repos\TP_TDV_02\bin\Debug\net8.0\Content\obj\DesktopGL\net8.0\Content\E.mgcontent

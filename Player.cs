@@ -6,6 +6,9 @@ namespace Bratalian2
 {
     public class Player
     {
+        // Para alinhar com o resto do jogo
+        private const int TileSize = 16;
+
         public Vector2 Position;
         private Texture2D idleTex, walkTex;
 
@@ -13,8 +16,10 @@ namespace Bratalian2
         private float animTimer;
         private int dir;       // 0 = down, 1 = left, 2 = right, 3 = up
         private bool moving;
-        public int Width;
-        public int Height;
+
+        // Tamanho do sprite para colisões externas
+        public int Width { get; }
+        public int Height { get; }
 
         public Player(Texture2D idle, Texture2D walk)
         {
@@ -26,38 +31,37 @@ namespace Bratalian2
             dir = 0;
             moving = false;
 
-            // tamanho do sprite de colisão e draw
             Width = 24;
             Height = 24;
         }
 
         public void Update(GameTime gameTime, KeyboardState state, MapZone zone)
         {
-            float speed = 2f;
+            const float speed = 2f;
             Vector2 move = Vector2.Zero;
 
-            // Input e direção
+            // 1) Input e direção
             if (state.IsKeyDown(Keys.Left))
             {
-                move.X -= speed;
+                move.X = -speed;
                 dir = 1;
                 moving = true;
             }
             else if (state.IsKeyDown(Keys.Right))
             {
-                move.X += speed;
+                move.X = +speed;
                 dir = 2;
                 moving = true;
             }
             else if (state.IsKeyDown(Keys.Up))
             {
-                move.Y -= speed;
+                move.Y = -speed;
                 dir = 3;
                 moving = true;
             }
             else if (state.IsKeyDown(Keys.Down))
             {
-                move.Y += speed;
+                move.Y = +speed;
                 dir = 0;
                 moving = true;
             }
@@ -66,10 +70,27 @@ namespace Bratalian2
                 moving = false;
             }
 
-            // aplica o movimento (colisões com ginásios e árvores ficam em Game1)
-            Position += move;
+            // 2) Movimento com colisão eixo X
+            if (move.X != 0)
+            {
+                var tryPos = new Vector2(Position.X + move.X, Position.Y);
+                int tx = (int)((tryPos.X + Width / 2) / TileSize);
+                int ty = (int)((tryPos.Y + Height / 2) / TileSize);
+                if (!Game1.IsBlocked(zone, tx, ty))
+                    Position.X += move.X;
+            }
 
-            // animação
+            // 3) Movimento com colisão eixo Y
+            if (move.Y != 0)
+            {
+                var tryPos = new Vector2(Position.X, Position.Y + move.Y);
+                int tx = (int)((tryPos.X + Width / 2) / TileSize);
+                int ty = (int)((tryPos.Y + Height / 2) / TileSize);
+                if (!Game1.IsBlocked(zone, tx, ty))
+                    Position.Y += move.Y;
+            }
+
+            // 4) Animação
             animTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (animTimer >= 0.18f)
             {
@@ -80,20 +101,17 @@ namespace Bratalian2
 
         public void Draw(SpriteBatch sb)
         {
-            const int frameW = 24;
-            const int frameH = 24;
+            const int frameW = 24, frameH = 24;
 
-            // retângulo do frame
-            Rectangle src = new Rectangle(
+            // Retângulo fonte
+            var src = new Rectangle(
                 frame * frameW,
                 dir * frameH,
-                frameW,
-                frameH);
+                frameW, frameH);
 
-            // centraliza ajuste
-            Vector2 drawPos = Position + new Vector2(-4, -8);
+            // Ajuste para centralizar sprite
+            var drawPos = Position + new Vector2(-4, -8);
 
-            // desenha
             sb.Draw(
                 moving ? walkTex : idleTex,
                 drawPos,
