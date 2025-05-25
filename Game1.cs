@@ -15,6 +15,8 @@ namespace Bratalian2
         // Texturas
         private Texture2D tilesetTex, borderTex, bushTex;
         private Texture2D idleTex, walkTex;
+        private Texture2D battleBackgroundTex;
+
 
         // Player e mapa
         private Player player;
@@ -30,9 +32,25 @@ namespace Bratalian2
 
         //Bratalians
         private List<Bratalian> bratalians = new List<Bratalian>();
+        private Bratalian bratalianAtual; // o bratalian da batalha
+        private Vector2 bratalianBattlePosition; // posição atual animada dele
+        private bool bratalianEntrando = false;
+
+        //Texto 
         private SpriteFont font;
         private bool mostrarTextoDeEncontro = false;
         private string textoDoBratalian = "";
+
+      // flag de animação
+
+
+        private enum GameState
+        {
+            Exploring,
+            Battle
+        }
+
+        private GameState currentState = GameState.Exploring;
 
         public Game1()
         {
@@ -61,6 +79,7 @@ namespace Bratalian2
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            font = Content.Load<SpriteFont>("Arial");
 
             // Carregamento de texturas
             tilesetTex = Content.Load<Texture2D>("tileset");
@@ -68,6 +87,8 @@ namespace Bratalian2
             bushTex = Content.Load<Texture2D>("bush");
             idleTex = Content.Load<Texture2D>("Char_002_Idle");
             walkTex = Content.Load<Texture2D>("Char_002");
+            battleBackgroundTex = Content.Load<Texture2D>("battle_bck");
+
 
             // Inicializa o jogador
             player = new Player(idleTex, walkTex);
@@ -112,11 +133,35 @@ namespace Bratalian2
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // Atualiza o jogador com colisão
-            player.Update(gameTime, Keyboard.GetState(), bigZone);
+            if (currentState == GameState.Exploring)
+            {
+                player.Update(gameTime, Keyboard.GetState(), bigZone);
+            }
+            if (currentState == GameState.Battle && bratalianEntrando)
+            {
+                float speed = 200f; // pixels por segundo
+                float delta = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+                // Move para a esquerda até a posição final
+                Vector2 destino = new Vector2(GraphicsDevice.Viewport.Width - 300, 300);
+                Vector2 dir = destino - bratalianBattlePosition;
+
+                if (dir.Length() > 2f)
+                {
+                    dir.Normalize();
+                    bratalianBattlePosition += dir * speed * delta;
+                }
+                else
+                {
+                    bratalianBattlePosition = destino;
+                    bratalianEntrando = false; // animação terminou
+                }
+            }
+
 
             base.Update(gameTime);
         }
+
 
         protected override void Draw(GameTime gameTime)
         {
@@ -128,25 +173,72 @@ namespace Bratalian2
                 samplerState: SamplerState.PointClamp,
                 transformMatrix: view);
 
-            DrawBackground();
-            DrawMapZone(bigZone);
-            player.Draw(spriteBatch);
-
-            foreach (var bratalian in bratalians)
+            if (currentState == GameState.Exploring)
             {
-                Rectangle playerRect = new Rectangle((int)player.Position.X, (int)player.Position.Y, player.width, player.height);
-                Rectangle bratalianRect = new Rectangle((int)bratalian.Position.X, (int)bratalian.Position.Y, bratalian.width, bratalian.height);
+                DrawBackground();
+                DrawMapZone(bigZone);
+                player.Draw(spriteBatch);
 
-                if (playerRect.Intersects(bratalianRect))
+                foreach (var bratalian in bratalians)
                 {
-                    StartBattle(bratalian);
-                    break;
+                    Rectangle playerRect = new Rectangle((int)player.Position.X, (int)player.Position.Y, 24, 24);
+                    Rectangle bratalianRect = new Rectangle((int)bratalian.Position.X, (int)bratalian.Position.Y, 24, 24);
+
+                    if (playerRect.Intersects(bratalianRect))
+                    {
+                        StartBattle(bratalian);
+                        break;
+                    }
+                }
+
+                if (mostrarTextoDeEncontro)
+                {
+                    Vector2 textSize = font.MeasureString(textoDoBratalian);
+                    Vector2 textPosition = player.Position - new Vector2(textSize.X / 2, textSize.Y + 10);
+                    spriteBatch.DrawString(font, textoDoBratalian, textPosition, Color.White);
                 }
             }
+            else if (currentState == GameState.Battle)
+            {
+                spriteBatch.End(); // termina o spriteBatch com transformMatrix
+
+                // Começa um novo SpriteBatch sem transformMatrix (tela cheia)
+                spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+
+                // Desenha o fundo da batalha ocupando toda a tela
+                spriteBatch.Draw(battleBackgroundTex, GraphicsDevice.Viewport.Bounds, Color.White);
+
+                // Desenha o texto centralizado
+                string texto = textoDoBratalian;
+                Vector2 textoTam = font.MeasureString(texto);
+                Vector2 centro = new Vector2(
+                    GraphicsDevice.Viewport.Width / 2f - textoTam.X / 2f,
+                    GraphicsDevice.Viewport.Height - 100
+                );
+
+                spriteBatch.DrawString(font, texto, centro, Color.White);
+
+                
+            }
+            if (bratalianAtual != null)
+            {
+                spriteBatch.Draw(
+                    bratalianAtual.Texture,
+                    bratalianBattlePosition,
+                    null,
+                    Color.White,
+                    0f,
+                    Vector2.Zero,
+                    3f, // escala
+                    SpriteEffects.None,
+                    0f);
+            }
+
 
             spriteBatch.End();
             base.Draw(gameTime);
         }
+
 
         private void DrawBackground()
         {
@@ -273,8 +365,16 @@ namespace Bratalian2
         private void StartBattle(Bratalian bratalian)
         {
             mostrarTextoDeEncontro = true;
-            textoDoBratalian = $"Você encontrou {bratalian.Name}! Prepare-se para a batalha!";
-            // Aqui você pode alternar um flag para mudar o GameState e desenhar tela de batalha.
+            textoDoBratalian = $"Voce encontrou {bratalian.Name}! Prepare-se para a batalha!";
+            currentState = GameState.Battle;
+
+            bratalianAtual = bratalian;
+            bratalianEntrando = true;
+
+            // Começa do canto direito da tela
+            bratalianBattlePosition = new Vector2(GraphicsDevice.Viewport.Width + 100, 300);
         }
+
+
     }
 }

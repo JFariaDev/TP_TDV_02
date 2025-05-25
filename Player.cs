@@ -27,8 +27,7 @@ namespace Bratalian2
             animTimer = 0f;
             dir = 0;
             moving = false;
-            width = 24;
-            height = 24;
+        
         }
 
         public void Update(GameTime gameTime, KeyboardState state, MapZone zone)

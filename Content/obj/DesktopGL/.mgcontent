@@ -4,6 +4,8 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
+    <File>C:/Users/ASUS/Desktop/TP_TDV_02_v2/Content/Arial.spritefont</File>
+    <File>C:/Users/ASUS/Desktop/TP_TDV_02_v2/Content/battle_interface.png</File>
     <File>C:/Users/ASUS/Desktop/TP_TDV_02_v2/Content/bombardini_guzzini.png</File>
     <File>C:/Users/ASUS/Desktop/TP_TDV_02_v2/Content/bombardino_crocodilo.png</File>
     <File>C:/Users/ASUS/Desktop/TP_TDV_02_v2/Content/boneca_ambalabu.png</File>
@@ -33,6 +35,8 @@
     <File>C:/Users/ASUS/Desktop/TP_TDV_02_v2/Content/tung_tung_tung_sahur.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

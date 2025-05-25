@@ -20,8 +20,7 @@ namespace Bratalian2
             Position = position;
             Name = nome;
             Scale = scale;
-            height = 24;
-            width = 24;
+            
 
         }
 

@@ -198,6 +198,8 @@ C:\Users\marci\source\repos\TP_TDV_02\bin\Debug\net8.0\Content\obj\DesktopGL\net
 C:\Users\marci\source\repos\TP_TDV_02\bin\Debug\net8.0\Content\obj\DesktopGL\net8.0\Content\shop.mgcontent
 C:\Users\marci\source\repos\TP_TDV_02\bin\Debug\net8.0\Content\obj\DesktopGL\net8.0\Content\tree.mgcontent
 C:\Users\marci\source\repos\TP_TDV_02\bin\Debug\net8.0\Content\obj\DesktopGL\net8.0\Content\treeazul.mgcontent
+C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\Arial.xnb
+C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\battle_bck.xnb
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\bombardini_guzzini.xnb
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\bombardino_crocodilo.xnb
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\boneca_ambalabu.xnb
@@ -225,6 +227,10 @@ C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\treeazul.xnb
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\trippi_troppi_troppa_trippa.xnb
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\trulimero_trulicina.xnb
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\tung_tung_tung_sahur.xnb
+C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\Arial.spritefont
+C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\battle_bck.png
+C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\bin\DesktopGL\Arial.xnb
+C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\bin\DesktopGL\battle_bck.xnb
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\bin\DesktopGL\bombardini_guzzini.xnb
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\bin\DesktopGL\bombardino_crocodilo.xnb
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\bin\DesktopGL\boneca_ambalabu.xnb
@@ -235,6 +241,7 @@ C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\bin\DesktopGL\bush.x
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\bin\DesktopGL\cappuccino_assassino.xnb
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\bin\DesktopGL\Char_002.xnb
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\bin\DesktopGL\Char_002_Idle.xnb
+C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\bin\DesktopGL\Content\Arial.xnb
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\bin\DesktopGL\Content\bombardini_guzzini.xnb
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\bin\DesktopGL\Content\bombardino_crocodilo.xnb
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\bin\DesktopGL\Content\boneca_ambalabu.xnb
@@ -301,6 +308,8 @@ C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\minitree.png
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\minitreeazul.png
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\obj\DesktopGL\.mgcontent
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\obj\DesktopGL\.mgstats
+C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\obj\DesktopGL\Arial.mgcontent
+C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\obj\DesktopGL\battle_bck.mgcontent
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\obj\DesktopGL\bombardini_guzzini.mgcontent
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\obj\DesktopGL\bombardino_crocodilo.mgcontent
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\obj\DesktopGL\boneca_ambalabu.mgcontent
@@ -322,6 +331,7 @@ C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\obj\DesktopGL\minitr
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\obj\DesktopGL\minitreeazul.mgcontent
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\obj\DesktopGL\net8.0\Content\.mgcontent
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\obj\DesktopGL\net8.0\Content\.mgstats
+C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\obj\DesktopGL\net8.0\Content\Arial.mgcontent
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\obj\DesktopGL\net8.0\Content\bombardini_guzzini.mgcontent
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\obj\DesktopGL\net8.0\Content\bombardino_crocodilo.mgcontent
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\obj\DesktopGL\net8.0\Content\boneca_ambalabu.mgcontent
@@ -398,3 +408,5 @@ C:\Users\ASUS\Desktop\TP_TDV_02_v2\obj\Debug\net8.0\refint\Bratalian2.dll
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\obj\Debug\net8.0\Bratalian2.pdb
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\obj\Debug\net8.0\Bratalian2.genruntimeconfig.cache
 C:\Users\ASUS\Desktop\TP_TDV_02_v2\obj\Debug\net8.0\ref\Bratalian2.dll
+C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\bin\DesktopGL\Content\battle_bck.xnb
+C:\Users\ASUS\Desktop\TP_TDV_02_v2\bin\Debug\net8.0\Content\obj\DesktopGL\net8.0\Content\battle_bck.mgcontent
