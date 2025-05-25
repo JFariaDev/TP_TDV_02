@@ -6,6 +6,7 @@
   <SourceFiles>
     <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/Arial.spritefont</File>
     <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/battle_interface.png</File>
+    <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/bolaazul.png</File>
     <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/bombardini_guzzini.png</File>
     <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/bombardino_crocodilo.png</File>
     <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/boneca_ambalabu.png</File>
@@ -22,6 +23,11 @@
     <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/ginasioazul.png</File>
     <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/ginasioverde.png</File>
     <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/ginasiovermelho.png</File>
+    <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/gold.png</File>
+    <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/gold1.png</File>
+    <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/gold2.png</File>
+    <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/gold3.png</File>
+    <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/goldscrap.png</File>
     <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/la_vaca_saturno_saturnita.png</File>
     <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/lirili_larila.png</File>
     <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/minitree.png</File>
@@ -36,6 +42,12 @@
     <File>C:/Users/marci/Source/Repos/TP_TDV_02/Content/tung_tung_tung_sahur.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
