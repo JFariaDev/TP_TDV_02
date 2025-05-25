@@ -30,6 +30,7 @@
     <File>C:/Users/marci/source/repos/TP_TDV_02/Content/goldscrap.png</File>
     <File>C:/Users/marci/source/repos/TP_TDV_02/Content/la_vaca_saturno_saturnita.png</File>
     <File>C:/Users/marci/source/repos/TP_TDV_02/Content/lirili_larila.png</File>
+    <File>C:/Users/marci/source/repos/TP_TDV_02/Content/logo.png</File>
     <File>C:/Users/marci/source/repos/TP_TDV_02/Content/minitree.png</File>
     <File>C:/Users/marci/source/repos/TP_TDV_02/Content/minitreeazul.png</File>
     <File>C:/Users/marci/source/repos/TP_TDV_02/Content/shop.png</File>
@@ -42,6 +43,7 @@
     <File>C:/Users/marci/source/repos/TP_TDV_02/Content/tung_tung_tung_sahur.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

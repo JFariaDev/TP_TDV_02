@@ -537,3 +537,7 @@ C:\Users\marci\Source\Repos\TP_TDV_02\obj\Debug\net8.0\refint\Bratalian2.dll
 C:\Users\marci\Source\Repos\TP_TDV_02\obj\Debug\net8.0\Bratalian2.pdb
 C:\Users\marci\Source\Repos\TP_TDV_02\obj\Debug\net8.0\Bratalian2.genruntimeconfig.cache
 C:\Users\marci\Source\Repos\TP_TDV_02\obj\Debug\net8.0\ref\Bratalian2.dll
+C:\Users\marci\Source\Repos\TP_TDV_02\bin\Debug\net8.0\Content\logo.xnb
+C:\Users\marci\Source\Repos\TP_TDV_02\bin\Debug\net8.0\Content\bin\DesktopGL\logo.xnb
+C:\Users\marci\Source\Repos\TP_TDV_02\bin\Debug\net8.0\Content\logo.png
+C:\Users\marci\Source\Repos\TP_TDV_02\bin\Debug\net8.0\Content\obj\DesktopGL\logo.mgcontent
