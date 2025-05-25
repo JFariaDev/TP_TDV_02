@@ -13,10 +13,8 @@ namespace Bratalian2
         private float animTimer;
         private int dir;       // 0 = down, 1 = left, 2 = right, 3 = up
         private bool moving;
-        public int width;
-        public int height;
-
-
+        public int Width;
+        public int Height;
 
         public Player(Texture2D idle, Texture2D walk)
         {
@@ -27,7 +25,10 @@ namespace Bratalian2
             animTimer = 0f;
             dir = 0;
             moving = false;
-        
+
+            // tamanho do sprite de colisão e draw
+            Width = 24;
+            Height = 24;
         }
 
         public void Update(GameTime gameTime, KeyboardState state, MapZone zone)
@@ -36,36 +37,39 @@ namespace Bratalian2
             Vector2 move = Vector2.Zero;
 
             // Input e direção
-            if (state.IsKeyDown(Keys.Left)) { move.X -= speed; dir = 1; moving = true; }
-            else if (state.IsKeyDown(Keys.Right)) { move.X += speed; dir = 2; moving = true; }
-            else if (state.IsKeyDown(Keys.Up)) { move.Y -= speed; dir = 3; moving = true; }
-            else if (state.IsKeyDown(Keys.Down)) { move.Y += speed; dir = 0; moving = true; }
-            else moving = false;
-
-            Vector2 newPos = Position;
-
-            // Primeiro eixo X
-            if (move.X != 0)
+            if (state.IsKeyDown(Keys.Left))
             {
-                var tryPos = new Vector2(Position.X + move.X, Position.Y);
-                int tx = (int)((tryPos.X + 12) / 16);
-                int ty = (int)((tryPos.Y + 12) / 16);
-                if (!Game1.IsBlocked(zone, tx, ty))
-                    newPos.X += move.X;
+                move.X -= speed;
+                dir = 1;
+                moving = true;
             }
-            // Depois eixo Y
-            if (move.Y != 0)
+            else if (state.IsKeyDown(Keys.Right))
             {
-                var tryPos = new Vector2(newPos.X, Position.Y + move.Y);
-                int tx = (int)((tryPos.X + 12) / 16);
-                int ty = (int)((tryPos.Y + 12) / 16);
-                if (!Game1.IsBlocked(zone, tx, ty))
-                    newPos.Y += move.Y;
+                move.X += speed;
+                dir = 2;
+                moving = true;
+            }
+            else if (state.IsKeyDown(Keys.Up))
+            {
+                move.Y -= speed;
+                dir = 3;
+                moving = true;
+            }
+            else if (state.IsKeyDown(Keys.Down))
+            {
+                move.Y += speed;
+                dir = 0;
+                moving = true;
+            }
+            else
+            {
+                moving = false;
             }
 
-            Position = newPos;
+            // aplica o movimento (colisões com ginásios e árvores ficam em Game1)
+            Position += move;
 
-            // Animação
+            // animação
             animTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (animTimer >= 0.18f)
             {
@@ -76,18 +80,25 @@ namespace Bratalian2
 
         public void Draw(SpriteBatch sb)
         {
-            const int frameW = 24, frameH = 24;
-            // Retângulo da frame correta
-            Rectangle src = new Rectangle(frame * frameW, dir * frameH, frameW, frameH);
-            // Ajuste de posição para centrar
+            const int frameW = 24;
+            const int frameH = 24;
+
+            // retângulo do frame
+            Rectangle src = new Rectangle(
+                frame * frameW,
+                dir * frameH,
+                frameW,
+                frameH);
+
+            // centraliza ajuste
             Vector2 drawPos = Position + new Vector2(-4, -8);
 
-            // Desenha idle ou walk conforme o estado
-            sb.Draw(moving ? walkTex : idleTex, drawPos, src, Color.White);
+            // desenha
+            sb.Draw(
+                moving ? walkTex : idleTex,
+                drawPos,
+                src,
+                Color.White);
         }
-
-        
-
     }
-
 }

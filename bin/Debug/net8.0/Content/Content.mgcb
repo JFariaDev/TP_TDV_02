@@ -20,7 +20,7 @@
 /processorParam:TextureFormat=Compressed
 /build:Arial.spritefont
 
-#begin battle_bck.png
+#begin battle_interface.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -30,7 +30,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:battle_bck.png
+/build:battle_interface.png
 
 #begin bombardini_guzzini.png
 /importer:TextureImporter

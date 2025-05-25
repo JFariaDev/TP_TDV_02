@@ -9,12 +9,6 @@ namespace Bratalian2
         public Texture2D Texture;
         public bool IsInteractive;
 
-        public int Width => Texture.Width;
-        public int Height => Texture.Height;
-
-        public Rectangle Bounds =>
-            new Rectangle((int)Position.X, (int)Position.Y, Width, Height);
-
         public Tree(Texture2D tex, Vector2 pos, bool interactive)
         {
             Texture = tex;
@@ -22,9 +16,16 @@ namespace Bratalian2
             IsInteractive = interactive;
         }
 
+        public Rectangle Bounds => new Rectangle(
+            (int)Position.X,
+            (int)Position.Y - Texture.Height + TileSize,
+            Texture.Width,
+            Texture.Height);
+
+        // For drawing
         public void Draw(SpriteBatch sb)
-        {
-            sb.Draw(Texture, Position, Color.White);
-        }
+            => sb.Draw(Texture, Position, Color.White);
+
+        private const int TileSize = 16;
     }
 }
