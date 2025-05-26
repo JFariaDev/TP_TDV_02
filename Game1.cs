@@ -285,10 +285,10 @@ namespace Bratalian2
 
                     // colisão de 1 tile de largura, ajustado verticalmente
                     int collW = TileSize;
+                    int collH = TileSize + TileSize / 3;
                     int offX = (int)pos.X + (tex.Width - collW) / 2;
-                    treeCollisionRects.Add(new Rectangle(
-                        offX, (int)pos.Y - (tex.Height - TileSize),
-                        collW, tex.Height));
+                    int offY = (int)pos.Y + (tex.Height - collH);
+                    treeCollisionRects.Add(new Rectangle(offX, offY, collW, collH));
                 }
             // Geração externa de árvores (fundo)
             
