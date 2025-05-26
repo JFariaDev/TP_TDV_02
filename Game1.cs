@@ -683,12 +683,12 @@ namespace Bratalian2
                         if (enterPressed && bratalianPlayer.Attacks.Count > 0)
                         {
                             var ataqueEscolhido = bratalianPlayer.Attacks[ataqueSelecionadoIndex];
-                            textoAtaqueSelecionado = $"Você escolheu: {ataqueEscolhido.Name}";
+                            textoAtaqueSelecionado = $"Voce escolheu: {ataqueEscolhido.Name}";
                             bratalianHealth -= ataqueEscolhido.Power;
 
                             if (bratalianHealth <= 0)
                             {
-                                textoDoBratalian = $"Você venceu! Ganhou {bratalianAtual.Name}!";
+                                textoDoBratalian = $"Voce venceu! Ganhou {bratalianAtual.Name}!";
                                 letrasVisiveis = 0;
                                 textoTimer = 0f;
                                 mostrarTextoDeEncontro = true;
@@ -735,11 +735,19 @@ namespace Bratalian2
 
             if (currentState == GameState.StartMenu)
             {
+                GraphicsDevice.Clear(Color.White);
                 spriteBatch.Begin();
-                string txt = "Pressione ENTER para jogar";
-                Vector2 tp = new Vector2(
-                    GraphicsDevice.Viewport.Width / 2 - font.MeasureString(txt).X / 2,
-                    GraphicsDevice.Viewport.Height / 2
+                var logoPos = new Vector2(
+                    GraphicsDevice.Viewport.Width / 2 - logoTex.Width / 2,
+                    GraphicsDevice.Viewport.Height / 2 - logoTex.Height / 2 - 50
+                );
+                spriteBatch.Draw(logoTex, logoPos, Color.White);
+                spriteBatch.Draw(uiPixel, playButtonRect, Color.Gray);
+                var txt = "PLAY";
+                var ms = font.MeasureString(txt);
+                var tp = new Vector2(
+                    playButtonRect.X + playButtonRect.Width / 2 - ms.X / 2,
+                    playButtonRect.Y + playButtonRect.Height / 2 - ms.Y / 2
                 );
                 spriteBatch.DrawString(font, txt, tp, Color.White);
                 spriteBatch.End();
