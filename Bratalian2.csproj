@@ -24,9 +24,6 @@
 			<LogicalName>Icon.bmp</LogicalName>
 		</EmbeddedResource>
 	</ItemGroup>
-	<ItemGroup>
-		<None Include="Content\**\*" CopyToOutputDirectory="PreserveNewest" />
-	</ItemGroup>
 	<Target Name="RestoreDotnetTools" BeforeTargets="Restore">
 		<Message Text="Restoring dotnet tools" Importance="High" />
 		<Exec Command="dotnet tool restore" />

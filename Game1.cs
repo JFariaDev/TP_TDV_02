@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -11,6 +12,7 @@ namespace Bratalian2
     {
         private enum GameState
         {
+            StartMenu,
             Exploring,
             Battle
         }
@@ -22,18 +24,23 @@ namespace Bratalian2
             PlayerLeaving,       // Fase 4: Player sai de cena
             PlayerEntering,     // Fase 5: Bratalian do jogador entra em cena
             BattleActive,        // Fase 6: Ambos prontos para lutar
-                VictoryText
+            VictoryText
 
         }
         BattlePhase battlePhase = BattlePhase.EnemyIntroText;
-        
 
-        private const int TileSize = 16;
+        public const int TileSize = 16;
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
         private const float BratalianBattleY = 120f;
         private KeyboardState previousKeyboardState;
+        // Tela
+        private GameState currentState = GameState.StartMenu;
 
+        // Logo e botão Play
+        private Texture2D logoTex, uiPixel;
+        private SpriteFont font;
+        private Rectangle playButtonRect;
 
         // Texturas de mapa e fundo
         private Texture2D tilesetTex, borderTex, bushTex, battleBackgroundTex;
@@ -49,15 +56,13 @@ namespace Bratalian2
         // Câmera
         private Camera2D camera;
 
-        // Estado de jogo
-        private GameState currentState = GameState.Exploring;
 
         // Bratalians
         private List<Bratalian> bratalians = new List<Bratalian>();
         private Bratalian bratalianAtual;
         private Bratalian bratalianPlayer;
 
-     
+
         private int playerHealth = 100;
         private int bratalianHealth = 100;
         private const int maxHealth = 100;
@@ -84,13 +89,12 @@ namespace Bratalian2
 
 
         // Texto de encontro
-        private SpriteFont font;
         private bool mostrarTextoDeEncontro = false;
         private string textoDoBratalian = "";
         private string textoAtaqueSelecionado = "";
 
         private float textoTimer = 0f;
-        private float textoSpeed = 0.05f; 
+        private float textoSpeed = 0.05f;
         private int letrasVisiveis = 0;
 
 
@@ -98,15 +102,34 @@ namespace Bratalian2
         private Texture2D gymBlueTex, gymGreenTex, gymRedTex;
         private Vector2 gymBluePos, gymGreenPos, gymRedPos;
         private List<Rectangle> gymCollisionRects = new List<Rectangle>();
+        private List<Bratalian> gymLeaders = new List<Bratalian>();
+        private int[] gymNeedBalls = { 20, 50, 80 };
+        private int[] gymNeedGold = { 10, 25, 40 };
+        private int? promptGymIndex = null;
+
+        // Shop e Enfermaria
+        private Texture2D shopTex, infirmaryTex;
+        private Vector2 shopPos, infirmaryPos;
+        private List<Rectangle> shopCollisionRects = new List<Rectangle>();
 
         // Árvores
         private Texture2D treeTex, treeBlueTex, bigTreeTex, bigTreeBlueTex;
+
         private List<Tree> trees = new List<Tree>();
         private List<Rectangle> treeCollisionRects = new List<Rectangle>();
-
-        // Interação com “E”
         private Texture2D interactTex;
         private Tree promptTree;
+
+        // UI de itens
+        private Texture2D bolaAzulTex, goldScrapTex;
+        private int bolaAzulCount = 0, goldScrapCount = 0;
+
+        // Gold drops variantes
+        private Texture2D[] goldDropTex = new Texture2D[3];
+        private struct GoldDrop { public Vector2 Pos; public int Variant; }
+        private List<GoldDrop> goldDrops = new List<GoldDrop>();
+        private GoldDrop? promptGold;
+
 
         public Game1()
         {
@@ -134,6 +157,32 @@ namespace Bratalian2
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            // Fonte, logo e botão
+            font = Content.Load<SpriteFont>("Arial");
+            logoTex = Content.Load<Texture2D>("logo");
+            uiPixel = new Texture2D(GraphicsDevice, 1, 1);
+            uiPixel.SetData(new[] { Color.White });
+
+            int bw = 200, bh = 50;
+            playButtonRect = new Rectangle(
+                GraphicsDevice.Viewport.Width / 2 - bw / 2,
+                GraphicsDevice.Viewport.Height / 2 + logoTex.Height / 2 + 20,
+                bw, bh
+            );
+            // Mapas e itens UI
+          
+            tilesetTex = Content.Load<Texture2D>("tileset");
+            borderTex = Content.Load<Texture2D>("borda");
+            bushTex = Content.Load<Texture2D>("bush");
+            
+            battleBackgroundTex = Content.Load<Texture2D>("battle_bck");
+        
+            bolaAzulTex = Content.Load<Texture2D>("bolaazul");
+            goldScrapTex = Content.Load<Texture2D>("goldscrap");
+            goldDropTex[0] = Content.Load<Texture2D>("gold1");
+            goldDropTex[1] = Content.Load<Texture2D>("gold2");
+            goldDropTex[2] = Content.Load<Texture2D>("gold3");
+
             // Texturas de mapa
             tilesetTex = Content.Load<Texture2D>("tileset");
             borderTex = Content.Load<Texture2D>("borda");
@@ -150,7 +199,6 @@ namespace Bratalian2
 
             // Batalha 
             battleBackgroundTex = Content.Load<Texture2D>("battle_bck");
-            font = Content.Load<SpriteFont>("Arial");
             battleInterfaceTex = Content.Load<Texture2D>("battle_interface");
             battlePlayerTex = Content.Load<Texture2D>("battle_player");
             healthBarTexture = new Texture2D(GraphicsDevice, 1, 1);
@@ -158,36 +206,55 @@ namespace Bratalian2
             Texture2D inicialTex = Content.Load<Texture2D>("tralalero_tralala");
             Vector2 inicialPos = new Vector2(100, 180);
 
-            
+
+            // Gera mapa e abre caminho no topo
+            bigZone = MapGenerator.Generate(
+                exteriorMargin, interiorMargin,
+                zoneW, zoneH, pathW,
+                gap, vgap);
+            int midX = bigZone.Width / 2;
+            for (int dx = -pathW / 2; dx <= pathW / 2; dx++)
+                bigZone.Tiles[midX + dx, 0] = TileType.Ground;
+            bigZone.GenerateGroundEdges();
+
+            // Shop e Enfermaria
+
+            shopTex = Content.Load<Texture2D>("shop");
+            infirmaryTex = Content.Load<Texture2D>("enfermaria");
+
+            int z1x = exteriorMargin + 1, z1y = exteriorMargin + 1, offs = 5;
+
+            int ixL = z1x + interiorMargin + 1 + offs;
+            int ixR = z1x + zoneW - interiorMargin - 2 - offs;
+            int iyT = z1y + interiorMargin + 1 + offs;
+            infirmaryPos = new Vector2(ixL * TileSize, iyT * TileSize);
+            shopPos = new Vector2(ixR * TileSize, iyT * TileSize);
+            shopCollisionRects.Add(new Rectangle((int)shopPos.X - shopTex.Width / 2, (int)shopPos.Y - shopTex.Height, shopTex.Width, shopTex.Height));
+            shopCollisionRects.Add(new Rectangle((int)infirmaryPos.X - infirmaryTex.Width / 2, (int)infirmaryPos.Y - infirmaryTex.Height, infirmaryTex.Width, infirmaryTex.Height));
 
 
             // Ginásios
             gymBlueTex = Content.Load<Texture2D>("ginasioazul");
             gymGreenTex = Content.Load<Texture2D>("ginasioverde");
             gymRedTex = Content.Load<Texture2D>("ginasiovermelho");
-            int z1x = exteriorMargin + 1, z1y = exteriorMargin + 1;
-            int z2x = z1x + zoneW + gap;
-            int z3y = z1y + zoneH + vgap;
-            int z3x = z1x, z4x = z2x;
-            Func<int, int, Vector2> center = (zx, zy) => new Vector2(
-                (zx + interiorMargin + (zoneW - 2 * interiorMargin) / 2) * TileSize,
-                (zy + interiorMargin + (zoneH - 2 * interiorMargin) / 2) * TileSize);
-            gymBluePos = center(z2x, z1y);
-            gymGreenPos = center(z3x, z3y);
-            gymRedPos = center(z4x, z3y);
-            gymCollisionRects.Add(new Rectangle(
-                (int)gymBluePos.X - gymBlueTex.Width / 2,
-                (int)gymBluePos.Y - gymBlueTex.Height,
-                gymBlueTex.Width, gymBlueTex.Height));
-            gymCollisionRects.Add(new Rectangle(
-                (int)gymGreenPos.X - gymGreenTex.Width / 2,
-                (int)gymGreenPos.Y - gymGreenTex.Height,
-                gymGreenTex.Width, gymGreenTex.Height));
-            gymCollisionRects.Add(new Rectangle(
-                (int)gymRedPos.X - gymRedTex.Width / 2,
-                (int)gymRedPos.Y - gymRedTex.Height,
-                gymRedTex.Width, gymRedTex.Height));
+         
+            Func<int, int, Vector2> ctr = (zx, zy) => new Vector2(
 
+                (zx + interiorMargin + (zoneW - 2 * interiorMargin) / 2) * TileSize,
+
+                (zy +interiorMargin + (zoneH - 2 * interiorMargin) / 2) *TileSize
+            );
+ 
+            gymBluePos = ctr(z1x + zoneW + gap, z1y);
+            gymGreenPos = ctr(z1x, z1y + zoneH + vgap);
+            gymRedPos = ctr(z1x + zoneW + gap, z1y + zoneH + vgap);
+            gymCollisionRects.AddRange(new[] {
+                new Rectangle((int)gymBluePos.X - gymBlueTex.Width/2,  (int)gymBluePos.Y - gymBlueTex.Height,  gymBlueTex.Width,  gymBlueTex.Height),
+                new Rectangle((int)gymGreenPos.X - gymGreenTex.Width/2,(int)gymGreenPos.Y - gymGreenTex.Height, gymGreenTex.Width, gymGreenTex.Height),
+                new Rectangle((int)gymRedPos.X - gymRedTex.Width / 2, (int)gymRedPos.Y - gymRedTex.Height, gymRedTex.Width, gymRedTex.Height)});
+            gymLeaders.Add(new Bratalian(Content.Load<Texture2D>("Char_002"), gymBluePos, "Líder Azul", new Vector2(1f), "Fogo"));
+            gymLeaders.Add(new Bratalian(Content.Load<Texture2D>("Char_002"), gymRedPos, "Líder Vermelho", new Vector2(1f), "Dark"));
+            gymLeaders.Add(new Bratalian(Content.Load<Texture2D>("Char_002"), gymGreenPos, "Líder Verde", new Vector2(1f), "Fighting"));
             // Árvores e ícone E
             treeTex = Content.Load<Texture2D>("minitree");
             treeBlueTex = Content.Load<Texture2D>("minitreeazul");
@@ -223,6 +290,51 @@ namespace Bratalian2
                         offX, (int)pos.Y - (tex.Height - TileSize),
                         collW, tex.Height));
                 }
+            // Geração externa de árvores (fundo)
+            
+            int rowsBack = GraphicsDevice.Viewport.Height / TileSize + 4;
+            int colsBack = GraphicsDevice.Viewport.Width / TileSize + 4;
+            for (int x = -colsBack; x < bigZone.Width + colsBack; x++)
+                for (int y = -rowsBack; y < 0; y++)
+                {
+                    if (rnd.NextDouble() >= 0.05) continue;
+                    bool isBlue = rnd.NextDouble() < 0.1;
+                    bool isBig = rnd.NextDouble() < 0.5;
+                    
+                    var tex = isBig ? (isBlue ? bigTreeBlueTex : bigTreeTex) : (isBlue ? treeBlueTex : treeTex);
+                    
+                    var pos = new Vector2(x * TileSize, y * TileSize);
+                    trees.Add(new Tree(tex, pos, isBlue));
+                    
+                    int w = tex.Width / 2, h = tex.Height / 3;
+                    
+                    int offX = (int)pos.X + (tex.Width - w) / 2;
+                   
+                    int offY = (int)pos.Y - (tex.Height - TileSize) + (tex.Height - h) + TileSize;
+                   
+                    treeCollisionRects.Add(new Rectangle(offX, offY, w, h));
+                   
+                }
+           
+
+
+            for (int i = 0; i < 30; i++)
+            {
+                int gx, gy;
+                do
+                {
+                    gx = rnd.Next(exteriorMargin, bigZone.Width - exteriorMargin);
+                    gy = rnd.Next(exteriorMargin, bigZone.Height - exteriorMargin);
+                } while (bigZone.Tiles[gx, gy] != TileType.Grass);
+                goldDrops.Add(new GoldDrop { Pos = new Vector2(gx * TileSize, gy * TileSize), Variant = rnd.Next(3) });
+            }
+
+            for (int i = 0; i < 30; i++)
+            {
+                int gx = rnd.Next(-colsBack, bigZone.Width + colsBack);
+                int gy = rnd.Next(-rowsBack, 0);
+                goldDrops.Add(new GoldDrop { Pos = new Vector2(gx * TileSize, gy * TileSize), Variant = rnd.Next(3) });
+            }
             // Bratalians
             var bratalianData = new[]
             {
@@ -355,7 +467,7 @@ namespace Bratalian2
 
                 bratalians.Add(bratalian);
             }
-            Bratalian inicial = bratalians[0];  
+            Bratalian inicial = bratalians[0];
             equipeDoJogador.Add(inicial);
 
         }
@@ -364,7 +476,17 @@ namespace Bratalian2
         {
             var ks = Keyboard.GetState();
             if (ks.IsKeyDown(Keys.Escape)) Exit();
-            if (currentState == GameState.Exploring)
+
+            if (currentState == GameState.StartMenu)
+            {
+                var ms = Mouse.GetState();
+                if ((ms.LeftButton == ButtonState.Pressed && playButtonRect.Contains(ms.Position))
+                   || ks.IsKeyDown(Keys.Enter))
+                {
+                    currentState = GameState.Exploring;
+                }
+            }
+            else if (currentState == GameState.Exploring)
             {
                 var old = player.Position;
                 player.Update(gameTime, ks, bigZone);
@@ -375,14 +497,13 @@ namespace Bratalian2
                 if (IsBlocked(bigZone, tx, ty))
                     player.Position = old;
 
-                // colisão ginásios e árvores
+                // colisão com retângulos de obstáculos
                 var pr = new Rectangle((int)player.Position.X, (int)player.Position.Y, player.Width, player.Height);
-                foreach (var gr in gymCollisionRects)
-                    if (pr.Intersects(gr)) { player.Position = old; break; }
-                foreach (var tr in treeCollisionRects)
-                    if (pr.Intersects(tr)) { player.Position = old; break; }
+                foreach (var r in gymCollisionRects) if (pr.Intersects(r)) { player.Position = old; break; }
+                foreach (var r in shopCollisionRects) if (pr.Intersects(r)) { player.Position = old; break; }
+                foreach (var r in treeCollisionRects) if (pr.Intersects(r)) { player.Position = old; break; }
 
-                // detecção de árvore azul interativa
+                // detectar árvore interativa
                 promptTree = trees.FirstOrDefault(t =>
                 {
                     if (!t.IsInteractive) return false;
@@ -390,28 +511,59 @@ namespace Bratalian2
                     return r.Intersects(pr);
                 });
 
-                // interação E
-                if (promptTree != null && ks.IsKeyDown(Keys.E))
+                // detectar ouro
+                promptGold = null;
+                foreach (var gd in goldDrops)
                 {
-                    if (promptTree.Texture == treeBlueTex) promptTree.Texture = treeTex;
-                    else if (promptTree.Texture == bigTreeBlueTex) promptTree.Texture = bigTreeTex;
-                    promptTree.IsInteractive = false;
-                    promptTree = null;
+                    var gr = new Rectangle((int)gd.Pos.X, (int)gd.Pos.Y, TileSize, TileSize);
+                    gr.Inflate(4, 4);
+                    if (gr.Intersects(pr)) { promptGold = gd; break; }
                 }
 
-                // encontros
-                foreach (var b in bratalians)
+                // detectar ginásio possível de entrar
+                promptGymIndex = null;
+                for (int i = 0; i < gymCollisionRects.Count; i++)
                 {
-                    if (b.IsDefeated) continue; // IGNORA derrotados
-
-                    var br = new Rectangle((int)b.Position.X, (int)b.Position.Y, 24, 24);
-                    if (pr.Intersects(br))
+                    if (pr.Intersects(gymCollisionRects[i])
+                       && bolaAzulCount >= gymNeedBalls[i]
+                       && goldScrapCount >= gymNeedGold[i])
                     {
-                        StartBattle(b);
+                        promptGymIndex = i;
                         break;
                     }
                 }
 
+                // Interações com tecla E
+                if (ks.IsKeyDown(Keys.E))
+                {
+                    if (promptTree != null)
+                    {
+                        var t = promptTree.Pick();
+                        if (t.Texture == treeBlueTex) t.Texture = treeTex;
+                        else if (t.Texture == bigTreeBlueTex) t.Texture = bigTreeTex;
+                        bolaAzulCount++;
+                        promptTree = null;
+                    }
+                    else if (promptGold.HasValue)
+                    {
+                        goldDrops.RemoveAll(g => g.Pos == promptGold.Value.Pos);
+                        goldScrapCount++;
+                        promptGold = null;
+                    }
+                    else if (promptGymIndex.HasValue)
+                    {
+                        StartBattle(gymLeaders[promptGymIndex.Value]);
+                        promptGymIndex = null;
+                    }
+                }
+
+                // Encontros com Bratalian selvagem
+                foreach (var b in bratalians)
+                {
+                    if (b.IsDefeated) continue;
+                    var br = new Rectangle((int)b.Position.X, (int)b.Position.Y, 24, 24);
+                    if (pr.Intersects(br)) { StartBattle(b); break; }
+                }
             }
             else if (currentState == GameState.Battle)
             {
@@ -429,7 +581,7 @@ namespace Bratalian2
                         }
                         else
                         {
-                            bratalianEnemyPosition = enemyTarget; // fixa posição final
+                            bratalianEnemyPosition = enemyTarget;
                         }
                         if (mostrarTextoDeEncontro && letrasVisiveis < textoDoBratalian.Length)
                         {
@@ -442,7 +594,6 @@ namespace Bratalian2
                         }
                         else if (mostrarTextoDeEncontro && letrasVisiveis >= textoDoBratalian.Length)
                         {
-                            // Passa para a próxima fase após o texto terminar
                             textoDoBratalian = "Escolhe o teu Bratalian!";
                             letrasVisiveis = 0;
                             textoTimer = 0f;
@@ -452,7 +603,6 @@ namespace Bratalian2
                         break;
 
                     case BattlePhase.PlayerChooseText:
-
                         textoTimer += dt;
                         if (letrasVisiveis < textoDoBratalian.Length)
                         {
@@ -464,12 +614,11 @@ namespace Bratalian2
                         }
                         else
                         {
-                            // Quando termina o texto, permite escolha
                             battlePhase = BattlePhase.PlayerChoosing;
                         }
                         break;
-                    case BattlePhase.PlayerChoosing:
 
+                    case BattlePhase.PlayerChoosing:
                         var keyboard = Keyboard.GetState();
                         if (keyboard.IsKeyDown(Keys.Down))
                             bratalianSelecionadoIndex = (bratalianSelecionadoIndex + 1) % equipeDoJogador.Count;
@@ -482,57 +631,47 @@ namespace Bratalian2
                             bratalianBattlePosition = bratalianBattleTargetPosition;
                             ataqueSelecionadoIndex = 0;
                             battlePhase = BattlePhase.PlayerLeaving;
-
                         }
                         break;
-                    case BattlePhase.PlayerLeaving:
-                        {
-                            var dir = battlePlayerExitPosition - battlePlayerPosition;
-                            if (dir.Length() > 2f)
-                            {
-                                dir.Normalize();
-                                battlePlayerPosition += dir * 600f * dt;
-                            }
-                            else
-                            {
-                                battlePlayerPosition = battlePlayerExitPosition;
-                                battlePhase = BattlePhase.PlayerEntering;
-                            }
-                            break;
-                        }
 
+                    case BattlePhase.PlayerLeaving:
+                        var dir = battlePlayerExitPosition - battlePlayerPosition;
+                        if (dir.Length() > 2f)
+                        {
+                            dir.Normalize();
+                            battlePlayerPosition += dir * 600f * dt;
+                        }
+                        else
+                        {
+                            battlePlayerPosition = battlePlayerExitPosition;
+                            battlePhase = BattlePhase.PlayerEntering;
+                        }
+                        break;
 
                     case BattlePhase.PlayerEntering:
+                        var direction = bratalianBattleTargetPosition - bratalianBattlePosition;
+                        if (direction.Length() > 1f)
                         {
-                            float speed = 600f;
-                            var direction = bratalianBattleTargetPosition - bratalianBattlePosition;
-                            if (direction.Length() > 1f)
-                            {
-                                direction.Normalize();
-                                bratalianBattlePosition += direction * speed * dt;
-                            }
-                            else
-                            {
-                                bratalianBattlePosition = bratalianBattleTargetPosition;
-                                battlePhase = BattlePhase.BattleActive;
-                            }
-                            break;
+                            direction.Normalize();
+                            bratalianBattlePosition += direction * 600f * dt;
                         }
-
+                        else
+                        {
+                            bratalianBattlePosition = bratalianBattleTargetPosition;
+                            battlePhase = BattlePhase.BattleActive;
+                        }
+                        break;
 
                     case BattlePhase.BattleActive:
                         keyboard = Keyboard.GetState();
-
                         bool upPressed = keyboard.IsKeyDown(Keys.Up) && !previousKeyboardState.IsKeyDown(Keys.Up);
                         bool downPressed = keyboard.IsKeyDown(Keys.Down) && !previousKeyboardState.IsKeyDown(Keys.Down);
 
-                        if (bratalianPlayer != null && bratalianPlayer.Attacks != null && bratalianPlayer.Attacks.Count > 0)
+                        if (bratalianPlayer != null && bratalianPlayer.Attacks.Count > 0)
                         {
                             if (upPressed)
                             {
-                                ataqueSelecionadoIndex--;
-                                if (ataqueSelecionadoIndex < 0)
-                                    ataqueSelecionadoIndex = bratalianPlayer.Attacks.Count - 1;
+                                ataqueSelecionadoIndex = (ataqueSelecionadoIndex - 1 + bratalianPlayer.Attacks.Count) % bratalianPlayer.Attacks.Count;
                             }
                             else if (downPressed)
                             {
@@ -545,28 +684,23 @@ namespace Bratalian2
                         {
                             var ataqueEscolhido = bratalianPlayer.Attacks[ataqueSelecionadoIndex];
                             textoAtaqueSelecionado = $"Você escolheu: {ataqueEscolhido.Name}";
-
-                            // Aplica dano no inimigo
                             bratalianHealth -= ataqueEscolhido.Power;
 
                             if (bratalianHealth <= 0)
                             {
-                                textoDoBratalian = $"Voce venceu! Ganhou {bratalianAtual.Name}!";
+                                textoDoBratalian = $"Você venceu! Ganhou {bratalianAtual.Name}!";
                                 letrasVisiveis = 0;
                                 textoTimer = 0f;
                                 mostrarTextoDeEncontro = true;
                                 battlePhase = BattlePhase.VictoryText;
                             }
 
-
-
-
                             Console.WriteLine(textoAtaqueSelecionado);
                         }
 
                         previousKeyboardState = keyboard;
-
                         break;
+
                     case BattlePhase.VictoryText:
                         textoTimer += dt;
                         if (letrasVisiveis < textoDoBratalian.Length)
@@ -579,25 +713,16 @@ namespace Bratalian2
                         }
                         else
                         {
-                            // Quando termina o texto, adiciona o Bratalian ao jogador e sai da batalha
                             if (bratalianAtual != null && !equipeDoJogador.Contains(bratalianAtual))
-                            {
                                 equipeDoJogador.Add(bratalianAtual);
-                            }
-
                             if (bratalianAtual != null && bratalians.Contains(bratalianAtual))
-                            {
                                 bratalians.Remove(bratalianAtual);
-                            }
 
                             bratalianAtual = null;
                             mostrarTextoDeEncontro = false;
                             currentState = GameState.Exploring;
                         }
                         break;
-
-
-
                 }
             }
 
@@ -608,39 +733,107 @@ namespace Bratalian2
         {
             GraphicsDevice.Clear(Color.Black);
 
-            // === Batch 1: Mundo ===
-            var view = camera.GetViewMatrix(player.Position);
-            spriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: view);
-
-            DrawBackground();
-            DrawMapZone(bigZone);
-
-            foreach (var t in trees) t.Draw(spriteBatch);
-            player.Draw(spriteBatch);
-
-            spriteBatch.Draw(gymBlueTex, gymBluePos - new Vector2(gymBlueTex.Width / 2, gymBlueTex.Height), Color.White);
-            spriteBatch.Draw(gymGreenTex, gymGreenPos - new Vector2(gymGreenTex.Width / 2, gymGreenTex.Height), Color.White);
-            spriteBatch.Draw(gymRedTex, gymRedPos - new Vector2(gymRedTex.Width / 2, gymRedTex.Height), Color.White);
-
-            if (mostrarTextoDeEncontro)
-            {
-                var ts = font.MeasureString(textoDoBratalian);
-                var tp = player.Position - new Vector2(ts.X / 2, ts.Y + 10);
-                spriteBatch.DrawString(font, textoDoBratalian, tp, Color.White);
-            }
-
-            spriteBatch.End();
-
-            // === Batch 2: UI “E” ===
-            if (promptTree != null)
+            if (currentState == GameState.StartMenu)
             {
                 spriteBatch.Begin();
-                var b = promptTree.Bounds;
-                var wp = new Vector2(b.Center.X, b.Top);
-                var sp = Vector2.Transform(wp, view);
-                spriteBatch.Draw(interactTex,
-                    sp - new Vector2(interactTex.Width / 2, interactTex.Height + 4),
-                    Color.White);
+                string txt = "Pressione ENTER para jogar";
+                Vector2 tp = new Vector2(
+                    GraphicsDevice.Viewport.Width / 2 - font.MeasureString(txt).X / 2,
+                    GraphicsDevice.Viewport.Height / 2
+                );
+                spriteBatch.DrawString(font, txt, tp, Color.White);
+                spriteBatch.End();
+            }
+            else
+            {
+                // === Batch 1: Mundo ===
+                var view = camera.GetViewMatrix(player.Position);
+                spriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: view);
+
+                DrawBackground();
+                DrawMapZone(bigZone);
+
+                foreach (var t in trees) t.Draw(spriteBatch);
+                foreach (var gd in goldDrops)
+                    spriteBatch.Draw(goldDropTex[gd.Variant], gd.Pos, Color.White);
+                player.Draw(spriteBatch);
+
+                // Ginásios e estruturas
+                spriteBatch.Draw(gymBlueTex, gymBluePos - new Vector2(gymBlueTex.Width / 2, gymBlueTex.Height), Color.White);
+                spriteBatch.Draw(gymGreenTex, gymGreenPos - new Vector2(gymGreenTex.Width / 2, gymGreenTex.Height), Color.White);
+                spriteBatch.Draw(gymRedTex, gymRedPos - new Vector2(gymRedTex.Width / 2, gymRedTex.Height), Color.White);
+                spriteBatch.Draw(infirmaryTex, infirmaryPos - new Vector2(infirmaryTex.Width / 2, infirmaryTex.Height), Color.White);
+                spriteBatch.Draw(shopTex, shopPos - new Vector2(shopTex.Width / 2, shopTex.Height), Color.White);
+
+                // Texto de encontro
+                if (mostrarTextoDeEncontro)
+                {
+                    var ts = font.MeasureString(textoDoBratalian);
+                    var tp = player.Position - new Vector2(ts.X / 2, ts.Y + 10);
+                    spriteBatch.DrawString(font, textoDoBratalian, tp, Color.White);
+                }
+
+                spriteBatch.End();
+
+                // === Batch 2: UI “E” ===
+                if (promptTree != null || promptGold.HasValue || promptGymIndex.HasValue)
+                {
+                    spriteBatch.Begin();
+                    Vector2 worldPos;
+                    if (promptTree != null)
+                        worldPos = new Vector2(promptTree.Bounds.Center.X, promptTree.Bounds.Top);
+                    else if (promptGold.HasValue)
+                        worldPos = promptGold.Value.Pos;
+                    else
+                    {
+                        int i = promptGymIndex.Value;
+                        var gp = i == 0 ? gymBluePos : (i == 1 ? gymRedPos : gymGreenPos);
+                        worldPos = new Vector2(gp.X, gp.Y - gymBlueTex.Height);
+                    }
+
+                    var sp = Vector2.Transform(worldPos, view);
+                    spriteBatch.Draw(interactTex, sp - new Vector2(interactTex.Width / 2, interactTex.Height / 2), Color.White);
+                    spriteBatch.End();
+                }
+
+                // === Batch 3: UI inventário ===
+                spriteBatch.Begin();
+                float uiScale = 0.05f;
+                var uiPos = new Vector2(8, 8);
+
+                // Bola azul
+                string bt = bolaAzulCount.ToString();
+                var bs = font.MeasureString(bt);
+                var brRect = new Rectangle((int)uiPos.X - 4, (int)uiPos.Y - 4,
+                                           (int)(bolaAzulTex.Width * uiScale + 8 + bs.X),
+                                           (int)(bolaAzulTex.Height * uiScale + 8));
+                spriteBatch.Draw(uiPixel, brRect, Color.Black * 0.5f);
+                spriteBatch.Draw(bolaAzulTex, uiPos, null, Color.White, 0f, Vector2.Zero, uiScale, SpriteEffects.None, 0f);
+                spriteBatch.DrawString(font, bt, uiPos + new Vector2(bolaAzulTex.Width * uiScale + 6, (bolaAzulTex.Height * uiScale - bs.Y) / 2), Color.White);
+
+                // Gold scrap
+                var sp2 = uiPos + new Vector2(0, brRect.Height + 4);
+                string gt = goldScrapCount.ToString();
+                var gs = font.MeasureString(gt);
+                var grRect2 = new Rectangle((int)sp2.X - 4, (int)sp2.Y - 4,
+                                            (int)(goldScrapTex.Width * uiScale + 8 + gs.X),
+                                            (int)(goldScrapTex.Height * uiScale + 8));
+                spriteBatch.Draw(uiPixel, grRect2, Color.Black * 0.5f);
+                spriteBatch.Draw(goldScrapTex, sp2, null, Color.White, 0f, Vector2.Zero, uiScale, SpriteEffects.None, 0f);
+                spriteBatch.DrawString(font, gt, sp2 + new Vector2(goldScrapTex.Width * uiScale + 6, (goldScrapTex.Height * uiScale - gs.Y) / 2), Color.White);
+
+                // Contadores dos ginásios
+                void DrawGymCounter(Vector2 pos, int bNeed, int gNeed)
+                {
+                    string s = $"{bolaAzulCount}/{bNeed}  {goldScrapCount}/{gNeed}";
+                    var m = font.MeasureString(s);
+                    var p = pos - new Vector2(m.X / 2, gymBlueTex.Height + m.Y + 4);
+                    spriteBatch.DrawString(font, s, p, Color.White);
+                }
+                DrawGymCounter(gymBluePos, 20, 10);
+                DrawGymCounter(gymRedPos, 50, 25);
+                DrawGymCounter(gymGreenPos, 80, 40);
+
                 spriteBatch.End();
             }
 
@@ -652,7 +845,7 @@ namespace Bratalian2
                 // Fundo da batalha
                 spriteBatch.Draw(battleBackgroundTex, GraphicsDevice.Viewport.Bounds, Color.White);
 
-                
+
 
                 // Player ainda não saiu
                 if (battlePhase != BattlePhase.PlayerEntering && bratalianPlayer == null)
@@ -768,35 +961,52 @@ namespace Bratalian2
 
         private void DrawBackground()
         {
+           
             var vp = GraphicsDevice.Viewport;
+         
             int cols = (int)(vp.Width / (TileSize * camera.Zoom)) + 3;
             int rows = (int)(vp.Height / (TileSize * camera.Zoom)) + 3;
+           
             var inv = Matrix.Invert(camera.GetViewMatrix(player.Position));
             var tl = Vector2.Transform(Vector2.Zero, inv);
             int sx = (int)(tl.X / TileSize) - 1, sy = (int)(tl.Y / TileSize) - 1;
-            var grass = new Rectangle(0, 0, TileSize, TileSize);
-
-            for (int x = 0; x < cols; x++)
-                for (int y = 0; y < rows; y++)
+         
+            var gRect = new Rectangle(0, 0, TileSize, TileSize);
+            
+            for (int tx = 0; tx < cols; tx++)
+                for (int ty = 0; ty < rows; ty++)
+                   
                 {
-                    var pos = new Vector2((sx + x) * TileSize, (sy + y) * TileSize);
-                    spriteBatch.Draw(tilesetTex, pos, grass, Color.White);
-                    if (new Random((sx + x) * 73856093 ^ (sy + y) * 19349663).NextDouble() < 0.05)
+                
+                    var pos = new Vector2((sx + tx) * TileSize, (sy + ty) * TileSize);
+                
+                    spriteBatch.Draw(tilesetTex, pos, gRect, Color.White);
+                
+                    int seed = (sx + tx) * 73856093 ^ (sy + ty) * 19349663;
+                if (new Random(seed).NextDouble() < 0.05)
+                  
                         spriteBatch.Draw(bushTex, pos, Color.White);
-                }
+            }
+            
         }
 
+        
         private void DrawMapZone(MapZone zone)
         {
-            var sb = spriteBatch; int TS = TileSize;
+            
+            var sb = spriteBatch;
+            int TS = TileSize;
+         
             var g0 = new Rectangle(0, 0, TS, TS);
             var g1 = new Rectangle(16, 0, TS, TS);
-            var tl0 = new Rectangle(0, 16, TS, TS);
-            var tl1 = new Rectangle(16, 16, TS, TS);
-            var tl2 = new Rectangle(32, 16, TS, TS);
-            var bl0 = new Rectangle(0, 48, TS, TS);
-            var bl1 = new Rectangle(16, 48, TS, TS);
-            var bl2 = new Rectangle(32, 48, TS, TS);
+         
+            var t0 = new Rectangle(0, 16, TS, TS);
+            var t1 = new Rectangle(16, 16, TS, TS);
+            var t2 = new Rectangle(32, 16, TS, TS);
+            var b0 = new Rectangle(0, 48, TS, TS);
+            var b1 = new Rectangle(16, 48, TS, TS);
+            var b2 = new Rectangle(32, 48, TS, TS);
+        
             var l0 = new Rectangle(0, 32, TS, TS);
             var r0 = new Rectangle(32, 32, TS, TS);
             var B0 = new Rectangle(0, 0, TS, TS);
@@ -807,47 +1017,75 @@ namespace Bratalian2
             var B3 = new Rectangle(0, 32, TS, TS);
             var B4 = new Rectangle(16, 32, TS, TS);
             var B5 = new Rectangle(32, 32, TS, TS);
+           
 
             for (int x = 0; x < zone.Width; x++)
                 for (int y = 0; y < zone.Height; y++)
                 {
+                    
                     var t = zone.Tiles[x, y];
                     var pos = new Vector2(x * TS, y * TS);
-                    if (t == TileType.Bush) { sb.Draw(bushTex, pos, Color.White); continue; }
+                    
+                    if (t == TileType.Bush)
+                    {
+                        sb.Draw(bushTex, pos, Color.White);
+                        continue;
+                    }
+                    
                     if (t == TileType.GroundEdgeLeft || t == TileType.GroundEdgeRight ||
                        t == TileType.GroundEdgeBottomLeft || t == TileType.GroundEdgeBottom ||
                        t == TileType.GroundEdgeBottomRight)
+                       
+                    {
+                        
                         sb.Draw(tilesetTex, pos, g0, Color.White);
-
-                    Texture2D tex = tilesetTex; Rectangle src = g0;
+                     
+                    }
+                    Texture2D tex = tilesetTex;
+                    Rectangle src = g0;
+                  
                     switch (t)
                     {
+
                         case TileType.Grass: src = g0; break;
-                        case TileType.Ground: src = g1; break;
-                        case TileType.GroundEdgeTopLeft: src = tl0; break;
-                        case TileType.GroundEdgeTop: src = tl1; break;
-                        case TileType.GroundEdgeTopRight: src = tl2; break;
-                        case TileType.GroundEdgeBottomLeft: src = bl0; break;
-                        case TileType.GroundEdgeBottom: src = bl1; break;
-                        case TileType.GroundEdgeBottomRight: src = bl2; break;
+                    case TileType.Ground:
+                        src = g1; break;
+                        
+                        case TileType.GroundEdgeTopLeft: src = t0; break;
+                    case TileType.GroundEdgeTop: src = t1; break;
+                    case TileType.GroundEdgeTopRight: src = t2; break;
+                    case TileType.GroundEdgeBottomLeft: src = b0; break;
+                    case TileType.GroundEdgeBottom: src = b1; break;
+                    case TileType.GroundEdgeBottomRight:
+                        src = b2; break;
+                       
                         case TileType.GroundEdgeLeft: src = l0; break;
-                        case TileType.GroundEdgeRight: src = r0; break;
-                        case TileType.BorderTopLeft: tex = borderTex; src = B0; break;
-                        case TileType.BorderTop: tex = borderTex; src = B1; break;
-                        case TileType.BorderTopRight: tex = borderTex; src = B2; break;
-                        case TileType.BorderLeft: tex = borderTex; src = L0; break;
-                        case TileType.BorderRight: tex = borderTex; src = R0; break;
-                        case TileType.BorderBottomLeft: tex = borderTex; src = B3; break;
-                        case TileType.BorderBottom: tex = borderTex; src = B4; break;
-                        case TileType.BorderBottomRight: tex = borderTex; src = B5; break;
+                    case TileType.GroundEdgeRight: src = r0; break;
+                    case TileType.BorderTopLeft: tex = borderTex; src = B0; break;
+                    case TileType.BorderTop: tex = borderTex; src = B1; break;
+                    case TileType.BorderTopRight: tex = borderTex; src = B2; break;
+                    case TileType.BorderLeft: tex = borderTex; src = L0; break;
+                    case TileType.BorderRight: tex = borderTex; src = R0; break;
+                    case TileType.BorderBottomLeft: tex = borderTex; src = B3; break;
+                    case TileType.BorderBottom: tex = borderTex; src = B4; break;
+                    case TileType.BorderBottomRight:
+                        tex = borderTex; src = B5; break;
+                       
                     }
+           
                     sb.Draw(tex, pos, src, Color.White);
+                  
                 }
+       
         }
 
         public static bool IsBlocked(MapZone zone, int x, int y)
         {
+        
+            if (y < 0) return false; // área exterior livre
+          
             if (x < 0 || x >= zone.Width || y < 0 || y >= zone.Height) return true;
+         
             switch (zone.Tiles[x, y])
             {
                 case TileType.BorderTop:
@@ -859,7 +1097,10 @@ namespace Bratalian2
                 case TileType.BorderBottomLeft:
                 case TileType.BorderBottomRight:
                     return true;
-                default: return false;
+
+                default:
+                    return false;
+                  
             }
         }
 

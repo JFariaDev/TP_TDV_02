@@ -5,13 +5,27 @@ namespace Bratalian2
 {
     public class Tree
     {
-        // Posição _tile_ (x*TileSize, y*TileSize), ou seja, a base da árvore
         public Vector2 Position;
         public Texture2D Texture;
         public bool IsInteractive;
 
         private const int TileSize = 16;
 
+        /// <summary>
+        /// Retângulo de colisão / interação da tree.
+        /// </summary>
+        public Rectangle Bounds => new Rectangle(
+            (int)Position.X,
+            (int)Position.Y - Texture.Height + TileSize,
+            Texture.Width,
+            Texture.Height);
+
+        /// <summary>
+        /// Cria uma nova árvore.
+        /// </summary>
+        /// <param name="tex">Textura (verde ou azul, grande ou pequena).</param>
+        /// <param name="pos">Posição de base (rodapé) da árvore, em pixels.</param>
+        /// <param name="interactive">Se é “azul” (True) ou não (False).</param>
         public Tree(Texture2D tex, Vector2 pos, bool interactive)
         {
             Texture = tex;
@@ -20,30 +34,20 @@ namespace Bratalian2
         }
 
         /// <summary>
-        /// Retângulo inteiro onde a árvore é desenhada no mundo,
-        /// com base no mesmo offset usado em Draw().
+        /// Marca a árvore como colhida e devolve esta instância
+        /// para permitir expressões do tipo:
+        /// promptTree.Pick().Texture = outraTextura;
         /// </summary>
-        public Rectangle Bounds
+        public Tree Pick()
         {
-            get
-            {
-                int drawX = (int)Position.X;
-                // ajusta Dy para que a base (pé) da árvore fique na linha do tile
-                int drawY = (int)Position.Y - (Texture.Height - TileSize);
-                return new Rectangle(drawX, drawY, Texture.Width, Texture.Height);
-            }
+            IsInteractive = false;
+            return this;
         }
 
         /// <summary>
-        /// Desenha a árvore de modo que a base coincida com o tile.
+        /// Desenha a árvore.
         /// </summary>
         public void Draw(SpriteBatch sb)
-        {
-            var drawPos = new Vector2(
-                Position.X,
-                Position.Y - (Texture.Height - TileSize)
-            );
-            sb.Draw(Texture, drawPos, Color.White);
-        }
+            => sb.Draw(Texture, Position, Color.White);
     }
 }
