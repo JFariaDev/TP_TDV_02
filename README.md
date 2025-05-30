@@ -65,8 +65,8 @@ Controla a visualização e o scrolling do ecrã
 ### Directoria Content/
 
 * `Content.mgcb`: pipeline MGCB para processamento de assets
-* `Textures/`: gráficos PNG (jogador, inimigos, terreno)
-* `Fonts/`: ficheiros .spritefont para renderização de texto
+* gráficos PNG (jogador, inimigos, terreno)
+* ficheiros .spritefont para renderização de texto
 
 ## Funcionamento Interno do Jogo
 
